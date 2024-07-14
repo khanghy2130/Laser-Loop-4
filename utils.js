@@ -7,6 +7,7 @@ const DRAG_SPEED = 0.35;
 let mainFaces;
 
 let uniqueVertices = [];
+let uniqueEdges = []; // {v0, v1, smallFaces[2]}
 
 let reflectors = [];
 let walls = [];
