@@ -1,10 +1,3 @@
-function mouseDragged() {
-  applyRotation(
-    (mouseX - pmouseX) * DRAG_SPEED, // angleY
-    (mouseY - pmouseY) * -DRAG_SPEED // angleX
-  );
-}
-
 function setup() {
   createCanvas(600, 600);
   angleMode(DEGREES);
@@ -19,14 +12,28 @@ function setup() {
   initiateStarterLaserPath();
 }
 
-let hoveredSF = null;
 function draw() {
+  touchCountdown--;
   hoveredSF = null;
-  background(30);
+  background(...COLORS.BG);
   translate(width / 2, height / 2);
 
   ///// Draw reflectors
   ///// Draw walls
+
+  // render laserSource
+  if (laserSourceSF.isVisible) {
+    fill(...COLORS.LASER);
+    noStroke();
+    triangle(
+      laserSourceSF.vertices[0][0],
+      laserSourceSF.vertices[0][1],
+      laserSourceSF.vertices[1][0],
+      laserSourceSF.vertices[1][1],
+      laserSourceSF.vertices[2][0],
+      laserSourceSF.vertices[2][1]
+    );
+  }
 
   // check hover
   for (let i = 0; i < mainFaces.length; i++) {
@@ -45,7 +52,7 @@ function draw() {
           sf.vertices[2]
         );
       if (isHovered) {
-        fill("grey");
+        fill(255, 255, 255, 150);
         noStroke();
         hoveredSF = sf;
         triangle(
@@ -60,34 +67,9 @@ function draw() {
     }
   }
 
-  // render adjacents of hovered SF ///// testing
-  if (hoveredSF) {
-    noStroke();
-    textSize(30);
-    for (let ai = 0; ai < hoveredSF.adjacents.length; ai++) {
-      // adjacent small face
-      const asf = hoveredSF.adjacents[ai];
-      if (!asf.isVisible) {
-        continue;
-      }
-      fill(255, 0, 100, 50);
-      triangle(
-        asf.vertices[0][0],
-        asf.vertices[0][1],
-        asf.vertices[1][0],
-        asf.vertices[1][1],
-        asf.vertices[2][0],
-        asf.vertices[2][1]
-      );
-      fill("white");
-      const tCenter = getTriangleCenter(asf.vertices);
-      text(ai, tCenter[0], tCenter[1]);
-    }
-  }
-
   // Render edges
-  stroke("orange");
-  strokeWeight(2);
+  stroke(...COLORS.GRID);
+  strokeWeight(3);
   for (const ue of uniqueEdges) {
     if (ue.smallFaces[0].isVisible || ue.smallFaces[1].isVisible) {
       line(ue.v0[0], ue.v0[1], ue.v1[0], ue.v1[1]);
@@ -98,9 +80,9 @@ function draw() {
   makeNewLaserPath(); //// not during animated movement
 
   // render laser
-  strokeWeight(8);
-  stroke("lime");
-  for (let i = 0; i < laserPaths.length; i++) {
+  strokeWeight(10);
+  stroke(...COLORS.LASER);
+  for (let i = 1; i < laserPaths.length; i++) {
     const lp = laserPaths[i];
     if (!lp.smallFace.isVisible) {
       continue;
@@ -124,4 +106,32 @@ function draw() {
     ];
     line(midV1[0], midV1[1], midV2[0], midV2[1]);
   }
+}
+
+function mouseDragged() {
+  isDragging = true;
+  applyRotation(
+    (mouseX - pmouseX) * DRAG_SPEED, // angleY
+    (mouseY - pmouseY) * -DRAG_SPEED // angleX
+  );
+}
+
+function touchEnded() {
+  if (isDragging) {
+    isDragging = false;
+    return;
+  }
+
+  if (touchCountdown > 0) {
+    return;
+  } else {
+    touchCountdown = 5;
+  }
+
+  if (hoveredSF) {
+    triangleClicked(hoveredSF);
+    return;
+  }
+
+  //// click actions
 }

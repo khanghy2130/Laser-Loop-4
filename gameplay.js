@@ -25,3 +25,21 @@ function applyRotation(angleY, angleX) {
     }
   }
 }
+
+function triangleClicked(sf) {
+  // clicked source?
+  if (laserSourceSF === sf) {
+    const firstPath = laserPaths[0];
+    // going clockwise? go counterclockwise (same adjacent, different dir)
+    if (nti(firstPath.e1i + 1) === firstPath.e2i) {
+      firstPath.e2i = nti(firstPath.e2i + 1);
+    }
+    // go to next adjacent
+    else {
+      firstPath.e1i = nti(firstPath.e1i + 1);
+      firstPath.e2i = nti(firstPath.e1i + 1);
+    }
+    laserPaths.length = 1; // reset laser
+    return;
+  }
+}
