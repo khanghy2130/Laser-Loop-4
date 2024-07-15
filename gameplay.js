@@ -27,6 +27,8 @@ function applyRotation(angleY, angleX) {
 }
 
 function triangleClicked(sf) {
+  if (walls.includes(sf)) return; // clicked wall?
+
   // clicked source?
   if (laserSourceSF === sf) {
     const firstPath = laserPaths[0];
@@ -42,4 +44,14 @@ function triangleClicked(sf) {
     laserPaths.length = 1; // reset laser
     return;
   }
+
+  // clicked reflector?
+  const reflectorIndex = reflectors.indexOf(sf);
+  if (reflectorIndex !== -1) {
+    reflectors.splice(reflectorIndex, 1);
+    return;
+  }
+
+  // clicked empty
+  reflectors.push(sf);
 }

@@ -1,6 +1,3 @@
-let laserPaths = [];
-let laserSourceSF;
-
 // LaserPath {stepsLeft, smallFace, e1i, e2i}
 // e1i: edge 1 index
 function makeNewLaserPath() {

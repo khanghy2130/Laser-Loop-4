@@ -6,21 +6,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta charset="utf-8" />
     <style>
-      * {
+      html,
+      body {
         margin: 0;
         padding: 0;
+        overscroll-behavior: none;
+      }
+      canvas {
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+        position: absolute;
       }
       body {
-        min-height: 100vh;
-        background: black;
+        min-height: 100dvh;
+        min-width: 100dvw;
+        background: rgb(25, 25, 25);
         display: flex;
         justify-content: center;
         align-items: center;
+        position: relative;
       }
     </style>
   </head>
   <body>
-    <main></main>
+    <canvas id="game-canvas"></canvas>
 
     <script src="utils.js"></script>
     <script src="backFaceCulling.js"></script>

@@ -1,5 +1,17 @@
+// nKA
+let _mouseX, _mouseY;
+let scaleFactor = 1;
+function windowResized() {
+  viewportWidth = Math.min(window.innerWidth, window.innerHeight);
+  scaleFactor = viewportWidth / 600;
+  canvas.elt.style.transform = "scale(" + scaleFactor + ")";
+}
+
 function setup() {
-  createCanvas(600, 600);
+  // nKA
+  canvas = createCanvas(600, 600, document.getElementById("game-canvas"));
+  windowResized();
+
   angleMode(DEGREES);
   textAlign(CENTER, CENTER);
   strokeJoin(ROUND);
@@ -13,13 +25,43 @@ function setup() {
 }
 
 function draw() {
+  _mouseX = mouseX / scaleFactor;
+  _mouseY = mouseY / scaleFactor;
   touchCountdown--;
   hoveredSF = null;
   background(...COLORS.BG);
   translate(width / 2, height / 2);
 
-  ///// Draw reflectors
-  ///// Draw walls
+  // Draw reflectors
+  fill(...COLORS.REFLECTOR);
+  noStroke();
+  for (let i = 0; i < reflectors.length; i++) {
+    if (!reflectors[i].isVisible) continue;
+    const vertices = reflectors[i].vertices;
+    triangle(
+      vertices[0][0],
+      vertices[0][1],
+      vertices[1][0],
+      vertices[1][1],
+      vertices[2][0],
+      vertices[2][1]
+    );
+  }
+
+  // Draw walls
+  fill(...COLORS.WALL);
+  for (let i = 0; i < walls.length; i++) {
+    if (!walls[i].isVisible) continue;
+    const vertices = walls[i].vertices;
+    triangle(
+      vertices[0][0],
+      vertices[0][1],
+      vertices[1][0],
+      vertices[1][1],
+      vertices[2][0],
+      vertices[2][1]
+    );
+  }
 
   // render laserSource
   if (laserSourceSF.isVisible) {
@@ -33,38 +75,6 @@ function draw() {
       laserSourceSF.vertices[2][0],
       laserSourceSF.vertices[2][1]
     );
-  }
-
-  // check hover
-  for (let i = 0; i < mainFaces.length; i++) {
-    const smallFaces = mainFaces[i].smallFaces;
-    for (const sf of smallFaces) {
-      if (!sf.isVisible) {
-        continue;
-      }
-
-      const isHovered =
-        !hoveredSF &&
-        pointInTriangle(
-          [mouseX - width / 2, mouseY - height / 2],
-          sf.vertices[0],
-          sf.vertices[1],
-          sf.vertices[2]
-        );
-      if (isHovered) {
-        fill(255, 255, 255, 150);
-        noStroke();
-        hoveredSF = sf;
-        triangle(
-          sf.vertices[0][0],
-          sf.vertices[0][1],
-          sf.vertices[1][0],
-          sf.vertices[1][1],
-          sf.vertices[2][0],
-          sf.vertices[2][1]
-        );
-      }
-    }
   }
 
   // Render edges
@@ -106,6 +116,36 @@ function draw() {
     ];
     line(midV1[0], midV1[1], midV2[0], midV2[1]);
   }
+
+  // check hover
+  for (let i = 0; i < mainFaces.length; i++) {
+    const smallFaces = mainFaces[i].smallFaces;
+    for (const sf of smallFaces) {
+      if (!sf.isVisible) continue;
+
+      const isHovered =
+        !hoveredSF &&
+        pointInTriangle(
+          [_mouseX - width / 2, _mouseY - height / 2],
+          sf.vertices[0],
+          sf.vertices[1],
+          sf.vertices[2]
+        );
+      if (isHovered) {
+        noFill();
+        stroke(...COLORS.YELLOW);
+        hoveredSF = sf;
+        triangle(
+          sf.vertices[0][0],
+          sf.vertices[0][1],
+          sf.vertices[1][0],
+          sf.vertices[1][1],
+          sf.vertices[2][0],
+          sf.vertices[2][1]
+        );
+      }
+    }
+  }
 }
 
 function mouseDragged() {
@@ -116,8 +156,17 @@ function mouseDragged() {
   );
 }
 
+function touchStarted() {
+  touchPos[0] = mouseX;
+  touchPos[1] = mouseY;
+}
+
 function touchEnded() {
-  if (isDragging) {
+  // was dragging? additional check to ignore short drag
+  if (
+    isDragging &&
+    dist(mouseX, mouseY, touchPos[0], touchPos[1]) > 5 / scaleFactor
+  ) {
     isDragging = false;
     return;
   }
