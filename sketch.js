@@ -34,6 +34,18 @@ function setup() {
   walls[0] = mainFaces[5].smallFaces[0];
   walls[1] = mainFaces[5].smallFaces[1];
   walls[2] = mainFaces[5].smallFaces[2];
+
+  // checks dummy
+  checks[0] = {
+    sf: mainFaces[2].smallFaces[3],
+    isHit: false,
+    ap: 0,
+  };
+  checks[1] = {
+    sf: mainFaces[3].smallFaces[1],
+    isHit: false,
+    ap: 0,
+  };
 }
 
 function draw() {
@@ -72,6 +84,33 @@ function draw() {
       vertices[1][1],
       vertices[2][0],
       vertices[2][1]
+    );
+  }
+
+  // Draw checks
+  for (let i = 0; i < checks.length; i++) {
+    const check = checks[i];
+    // update ap
+    if (check.isHit) check.ap += CHECK_COLOR_SPEED;
+    else check.ap -= CHECK_COLOR_SPEED;
+    check.ap = constrain(check.ap, 0, 1);
+    if (!check.sf.isVisible) continue; // skip if not visible
+
+    if (check.isHit) {
+      fill(lerpColor(color(...COLORS.BG), color(...COLORS.LASER), check.ap));
+    } else {
+      fill(
+        lerpColor(color(...COLORS.YELLOW), color(...COLORS.LASER), check.ap)
+      );
+    }
+    const cvs = check.sf.vertices;
+    triangle(
+      (cvs[0][0] + cvs[1][0]) / 2,
+      (cvs[0][1] + cvs[1][1]) / 2,
+      (cvs[1][0] + cvs[2][0]) / 2,
+      (cvs[1][1] + cvs[2][1]) / 2,
+      (cvs[2][0] + cvs[0][0]) / 2,
+      (cvs[2][1] + cvs[0][1]) / 2
     );
   }
 

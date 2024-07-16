@@ -65,6 +65,7 @@ function triangleClicked(sf) {
         // was this laser going towards the removed reflector?
         if (laserPaths[li].e2i === asf.adjacents.indexOf(sf)) {
           laserPaths.length = li + 1;
+          resetChecksIsHit();
         }
       }
     }
@@ -76,6 +77,7 @@ function triangleClicked(sf) {
   let laserPathIndex = getLaserPathIndexOf(sf);
   if (laserPathIndex !== -1) {
     laserPaths.length = laserPathIndex;
+    resetChecksIsHit();
   }
 }
 

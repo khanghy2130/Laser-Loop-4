@@ -3,6 +3,7 @@ const SPHERE_SCALE = 280;
 const DRAG_SPEED = 0.36;
 const REPEL = 25;
 const ELASTICITY = 0.15;
+const CHECK_COLOR_SPEED = 0.07;
 
 const COLORS = {
   BG: [54, 0, 37],

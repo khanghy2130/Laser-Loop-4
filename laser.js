@@ -60,9 +60,25 @@ function makeNewLaserPath() {
   }
   // go straight?
   else {
+    // reaching source?
+    if (nextSF === laserSourceSF) {
+      isLooped = true;
+      return;
+    }
+
+    let reachingACheck = false;
+    for (let ci = 0; ci < checks.length; ci++) {
+      if (checks[ci].sf === nextSF) {
+        checks[ci].isHit = true;
+        reachingACheck = true;
+        break;
+      }
+    }
+
     const e1i = nextSF.adjacents.indexOf(currentPath.smallFace);
     laserPaths.push({
-      stepsLeft: currentPath.stepsLeft - 1,
+      // restore to 10 steps if reaching a check
+      stepsLeft: reachingACheck ? 10 : currentPath.stepsLeft - 1,
       smallFace: nextSF,
       e1i: e1i,
       e2i: wasGoingClockwise ? nti(e1i - 1) : nti(e1i + 1),
