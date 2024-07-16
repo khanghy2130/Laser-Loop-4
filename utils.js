@@ -1,13 +1,15 @@
 // CONSTANTS
 const SPHERE_SCALE = 280;
 const DRAG_SPEED = 0.38;
+const REPEL = 20;
+const ELASTICITY = 0.15;
 
 const COLORS = {
   BG: [54, 0, 37],
   GRID: [250, 118, 186],
   LASER: [35, 255, 115],
+  REFLECTOR: [204, 55, 133],
   WALL: [250, 118, 186],
-  REFLECTOR: [255, 200, 240],
   YELLOW: [255, 255, 0],
 };
 
@@ -29,6 +31,15 @@ let hoveredSF = null;
 let touchCountdown = 0;
 let isDragging = false;
 const touchPos = [0, 0];
+
+const targetingEffect = {
+  sf: null,
+  renderVertices: [
+    [0, 0],
+    [0, 0],
+    [0, 0],
+  ],
+};
 
 // HELPERS
 function sign(p1, p2, p3) {

@@ -55,3 +55,42 @@ function triangleClicked(sf) {
   // clicked empty
   reflectors.push(sf);
 }
+
+function updateTargetSF() {
+  // target changed?
+  if (targetingEffect.sf !== hoveredSF) targetingEffect.sf = hoveredSF;
+
+  let targetVertices = [];
+  // follow cursor: if no targeted SF OR mouse is down OR hovered on wall
+  if (
+    targetingEffect.sf === null ||
+    mouseIsPressed ||
+    walls.includes(targetingEffect.sf)
+  ) {
+    const pos = [_mouseX - width / 2, _mouseY - height / 2];
+    targetVertices = [pos, pos, pos];
+  }
+  // follow targeted SF vertices
+  else {
+    const sfv = targetingEffect.sf.vertices;
+    for (let i = 0; i < sfv.length; i++) {
+      const newPos = [sfv[i][0], sfv[i][1]];
+      targetVertices[i] = newPos;
+
+      // Repel from mouse position
+      let dx = _mouseX - width / 2 - newPos[0];
+      let dy = _mouseY - height / 2 - newPos[1];
+      let distance = Math.sqrt(dx * dx + dy * dy);
+      newPos[0] += (dx / distance) * REPEL;
+      newPos[1] += (dy / distance) * REPEL;
+    }
+  }
+
+  // update renderVertices /////
+  for (let i = 0; i < targetingEffect.renderVertices.length; i++) {
+    const rv = targetingEffect.renderVertices[i];
+    const tv = targetVertices[i];
+    rv[0] += (tv[0] - rv[0]) * ELASTICITY * (0.6 + 0.15 * (i + 1));
+    rv[1] += (tv[1] - rv[1]) * ELASTICITY * (0.6 + 0.15 * (i + 1));
+  }
+}

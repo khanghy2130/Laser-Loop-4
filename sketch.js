@@ -22,6 +22,11 @@ function setup() {
   //// set below after generated a puzzle
   laserSourceSF = mainFaces[0].smallFaces[0];
   initiateStarterLaserPath();
+
+  //// wall dummy
+  walls[0] = mainFaces[5].smallFaces[0];
+  walls[1] = mainFaces[5].smallFaces[1];
+  walls[2] = mainFaces[5].smallFaces[2];
 }
 
 function draw() {
@@ -63,7 +68,7 @@ function draw() {
     );
   }
 
-  // render laserSource
+  // Draw laserSource
   if (laserSourceSF.isVisible) {
     fill(...COLORS.LASER);
     noStroke();
@@ -77,9 +82,9 @@ function draw() {
     );
   }
 
-  // Render edges
+  // Draw edges
   stroke(...COLORS.GRID);
-  strokeWeight(3);
+  strokeWeight(3.5);
   for (const ue of uniqueEdges) {
     if (ue.smallFaces[0].isVisible || ue.smallFaces[1].isVisible) {
       line(ue.v0[0], ue.v0[1], ue.v1[0], ue.v1[1]);
@@ -89,7 +94,7 @@ function draw() {
   // update laser
   makeNewLaserPath(); //// not during animated movement
 
-  // render laser
+  // Draw laser
   strokeWeight(10);
   stroke(...COLORS.LASER);
   for (let i = 1; i < laserPaths.length; i++) {
@@ -122,30 +127,27 @@ function draw() {
     const smallFaces = mainFaces[i].smallFaces;
     for (const sf of smallFaces) {
       if (!sf.isVisible) continue;
-
-      const isHovered =
+      if (
         !hoveredSF &&
         pointInTriangle(
           [_mouseX - width / 2, _mouseY - height / 2],
           sf.vertices[0],
           sf.vertices[1],
           sf.vertices[2]
-        );
-      if (isHovered) {
-        noFill();
-        stroke(...COLORS.YELLOW);
+        )
+      ) {
         hoveredSF = sf;
-        triangle(
-          sf.vertices[0][0],
-          sf.vertices[0][1],
-          sf.vertices[1][0],
-          sf.vertices[1][1],
-          sf.vertices[2][0],
-          sf.vertices[2][1]
-        );
       }
     }
   }
+
+  updateTargetSF();
+  // Draw targeting effect
+  noFill();
+  strokeWeight(8);
+  stroke(...COLORS.YELLOW);
+  const rv = targetingEffect.renderVertices;
+  triangle(rv[0][0], rv[0][1], rv[1][0], rv[1][1], rv[2][0], rv[2][1]);
 }
 
 function mouseDragged() {
@@ -162,13 +164,13 @@ function touchStarted() {
 }
 
 function touchEnded() {
-  // was dragging? additional check to ignore short drag
-  if (
-    isDragging &&
-    dist(mouseX, mouseY, touchPos[0], touchPos[1]) > 5 / scaleFactor
-  ) {
+  // was dragging?
+  if (isDragging) {
     isDragging = false;
-    return;
+    // ignore short drag
+    if (dist(mouseX, mouseY, touchPos[0], touchPos[1]) > 5 / scaleFactor) {
+      return;
+    }
   }
 
   if (touchCountdown > 0) {
