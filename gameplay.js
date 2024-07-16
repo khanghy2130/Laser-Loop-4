@@ -26,8 +26,13 @@ function applyRotation(angleY, angleX) {
   }
 }
 
+function checksIncludes(sf) {
+  return checks.some((check) => check.sf === sf);
+}
+
 function triangleClicked(sf) {
   if (walls.includes(sf)) return; // clicked wall?
+  if (checksIncludes(sf)) return; // clicked check?
 
   // clicked source?
   if (laserSourceSF === sf) {
@@ -42,18 +47,36 @@ function triangleClicked(sf) {
       firstPath.e2i = nti(firstPath.e1i + 1);
     }
     laserPaths.length = 1; // reset laser
+    resetChecksIsHit();
     return;
   }
 
-  // clicked reflector?
+  // clicked reflector? remove reflector
   const reflectorIndex = reflectors.indexOf(sf);
   if (reflectorIndex !== -1) {
-    reflectors.splice(reflectorIndex, 1);
+    reflectors.splice(reflectorIndex, 1); // remove reflector
+    // for each adjacent sf of this sf
+    for (let i = 0; i < sf.adjacents.length; i++) {
+      const asf = sf.adjacents[i];
+      // check all laser paths on this asf
+      for (let li = 0; li < laserPaths.length; li++) {
+        // skip if not on this asf
+        if (laserPaths[li].smallFace !== asf) continue;
+        // was this laser going towards the removed reflector?
+        if (laserPaths[li].e2i === asf.adjacents.indexOf(sf)) {
+          laserPaths.length = li + 1;
+        }
+      }
+    }
     return;
   }
 
-  // clicked empty
+  // clicked empty? place reflector & cut laser paths at this sf if any
   reflectors.push(sf);
+  let laserPathIndex = getLaserPathIndexOf(sf);
+  if (laserPathIndex !== -1) {
+    laserPaths.length = laserPathIndex;
+  }
 }
 
 function updateTargetSF() {
@@ -61,11 +84,16 @@ function updateTargetSF() {
   if (targetingEffect.sf !== hoveredSF) targetingEffect.sf = hoveredSF;
 
   let targetVertices = [];
-  // follow cursor: if no targeted SF OR mouse is down OR hovered on wall
+  // follow cursor:
+  // if mouse is down
+  // OR if no targeted SF
+  // OR if hovered on a wall
+  // OR if hovered on a check
   if (
-    targetingEffect.sf === null ||
     mouseIsPressed ||
-    walls.includes(targetingEffect.sf)
+    targetingEffect.sf === null ||
+    walls.includes(targetingEffect.sf) ||
+    checksIncludes(targetingEffect.sf)
   ) {
     const pos = [_mouseX - width / 2, _mouseY - height / 2];
     targetVertices = [pos, pos, pos];
@@ -86,7 +114,7 @@ function updateTargetSF() {
     }
   }
 
-  // update renderVertices /////
+  // update renderVertices
   for (let i = 0; i < targetingEffect.renderVertices.length; i++) {
     const rv = targetingEffect.renderVertices[i];
     const tv = targetVertices[i];

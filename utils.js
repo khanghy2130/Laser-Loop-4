@@ -1,7 +1,7 @@
 // CONSTANTS
 const SPHERE_SCALE = 280;
-const DRAG_SPEED = 0.38;
-const REPEL = 20;
+const DRAG_SPEED = 0.36;
+const REPEL = 25;
 const ELASTICITY = 0.15;
 
 const COLORS = {
@@ -14,17 +14,19 @@ const COLORS = {
 };
 
 // DATA
-// small face {vertices[3], adjacents[3], isVisible}
+// smallFace {vertices[3], adjacents[3], isVisible}
 let mainFaces;
-
-let uniqueVertices = [];
 let uniqueEdges = []; // {v0, v1, smallFaces[2]}
+let uniqueVertices = [];
 
 let reflectors = []; // smallFace[]
 let walls = []; // smallFace[]
+// ap = animation progress (set 0 on laser hit)
+let checks = []; // {sf, isHit, ap}[]
 
 let laserPaths = [];
 let laserSourceSF;
+let isLooped = false;
 
 // INPUTS
 let hoveredSF = null;

@@ -19,9 +19,16 @@ function setup() {
   buildMainFaces();
   applyRotation(0, 0);
 
+  //// reset
+  isLooped = false;
+  laserPaths = [];
+  reflectors = [];
+  walls = [];
+  checks = [];
+
   //// set below after generated a puzzle
   laserSourceSF = mainFaces[0].smallFaces[0];
-  initiateStarterLaserPath();
+  initiateStarterLaserPath(); // add first laser path
 
   //// wall dummy
   walls[0] = mainFaces[5].smallFaces[0];
@@ -144,7 +151,7 @@ function draw() {
   updateTargetSF();
   // Draw targeting effect
   noFill();
-  strokeWeight(8);
+  strokeWeight(7);
   stroke(...COLORS.YELLOW);
   const rv = targetingEffect.renderVertices;
   triangle(rv[0][0], rv[0][1], rv[1][0], rv[1][1], rv[2][0], rv[2][1]);
