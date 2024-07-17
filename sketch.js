@@ -19,8 +19,10 @@ function setup() {
   buildMainFaces();
   applyRotation(0, 0);
 
-  //// reset
+  ///// reset
+  clickEffect.sf = null;
   isLooped = false;
+  laserParticles = [];
   laserPaths = [];
   reflectors = [];
   walls = [];
@@ -128,6 +130,21 @@ function draw() {
     );
   }
 
+  // Draw click effect
+  if (clickEffect.sf) {
+    clickEffect.ap += CLICK_EFFECT_SPEED;
+    fill(...COLORS.WALL, min(1 - clickEffect.ap, 1) * 255);
+    triangle(
+      clickEffect.sf.vertices[0][0],
+      clickEffect.sf.vertices[0][1],
+      clickEffect.sf.vertices[1][0],
+      clickEffect.sf.vertices[1][1],
+      clickEffect.sf.vertices[2][0],
+      clickEffect.sf.vertices[2][1]
+    );
+    if (clickEffect.ap >= 1) clickEffect.sf = null;
+  }
+
   // Draw edges
   stroke(...COLORS.GRID);
   strokeWeight(3.5);
@@ -168,6 +185,33 @@ function draw() {
     line(midV1[0], midV1[1], midV2[0], midV2[1]);
   }
 
+  const lastLP = laserPaths[laserPaths.length - 1];
+  // add particles (if sf visible & not too frequently)
+  if (lastLP.smallFace.isVisible && frameCount % 2 === 0) {
+    const v0 = lastLP.smallFace.vertices[lastLP.e2i];
+    const v1 = lastLP.smallFace.vertices[nti(lastLP.e2i + 1)];
+    const randomDeg = random(0, 360);
+    laserParticles.push({
+      rPos: [(v0[0] + v1[0]) / 2, (v0[1] + v1[1]) / 2],
+      vPos: [cos(randomDeg) * PARTICLE_SPEED, sin(randomDeg) * PARTICLE_SPEED],
+      s: 1,
+    });
+  }
+  // Draw laser particles
+  stroke(...COLORS.LASER);
+  for (let i = laserParticles.length - 1; i >= 0; i--) {
+    const lp = laserParticles[i];
+    // apply vPos to rPos
+    lp.rPos[0] += lp.vPos[0];
+    lp.rPos[1] += lp.vPos[1];
+    strokeWeight(lp.s * 13); // particle size
+    point(lp.rPos[0], lp.rPos[1]);
+    lp.s -= 0.04;
+    if (lp.s <= 0) {
+      laserParticles.splice(i, 1);
+    }
+  }
+
   // check hover
   for (let i = 0; i < mainFaces.length; i++) {
     const smallFaces = mainFaces[i].smallFaces;
@@ -190,7 +234,7 @@ function draw() {
   updateTargetSF();
   // Draw targeting effect
   noFill();
-  strokeWeight(7);
+  strokeWeight(6);
   stroke(...COLORS.YELLOW);
   const rv = targetingEffect.renderVertices;
   triangle(rv[0][0], rv[0][1], rv[1][0], rv[1][1], rv[2][0], rv[2][1]);

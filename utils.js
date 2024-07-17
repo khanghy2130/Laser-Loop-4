@@ -3,7 +3,9 @@ const SPHERE_SCALE = 280;
 const DRAG_SPEED = 0.36;
 const REPEL = 25;
 const ELASTICITY = 0.15;
-const CHECK_COLOR_SPEED = 0.07;
+const CHECK_COLOR_SPEED = 0.06;
+const CLICK_EFFECT_SPEED = 0.06;
+const PARTICLE_SPEED = 1.2;
 
 const COLORS = {
   BG: [54, 0, 37],
@@ -25,6 +27,7 @@ let walls = []; // smallFace[]
 // ap = animation progress (set 0 on laser hit)
 let checks = []; // {sf, isHit, ap}[]
 
+let laserParticles = []; // {rPos, vPos, s}[]
 let laserPaths = [];
 let laserSourceSF;
 let isLooped = false;
@@ -34,6 +37,10 @@ let hoveredSF = null;
 let touchCountdown = 0;
 let isDragging = false;
 const touchPos = [0, 0];
+const clickEffect = {
+  sf: null,
+  ap: 1,
+};
 
 const targetingEffect = {
   sf: null,

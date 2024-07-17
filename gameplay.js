@@ -34,6 +34,10 @@ function triangleClicked(sf) {
   if (walls.includes(sf)) return; // clicked wall?
   if (checksIncludes(sf)) return; // clicked check?
 
+  // set up click effect
+  clickEffect.sf = sf;
+  clickEffect.ap = 0;
+
   // clicked source?
   if (laserSourceSF === sf) {
     const firstPath = laserPaths[0];
