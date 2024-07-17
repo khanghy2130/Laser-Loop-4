@@ -6,6 +6,7 @@ const ELASTICITY = 0.15;
 const CHECK_COLOR_SPEED = 0.06;
 const CLICK_EFFECT_SPEED = 0.06;
 const PARTICLE_SPEED = 1.2;
+const LASER_SPEED = 0.2;
 
 const COLORS = {
   BG: [54, 0, 37],
@@ -31,6 +32,7 @@ let laserParticles = []; // {rPos, vPos, s}[]
 let laserPaths = [];
 let laserSourceSF;
 let isLooped = false;
+let laserAP = 0;
 
 // INPUTS
 let hoveredSF = null;

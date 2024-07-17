@@ -12,6 +12,7 @@ function setup() {
   canvas = createCanvas(600, 600, document.getElementById("game-canvas"));
   windowResized();
 
+  textFont("Agency FB");
   angleMode(DEGREES);
   textAlign(CENTER, CENTER);
   strokeJoin(ROUND);
@@ -22,6 +23,7 @@ function setup() {
   ///// reset
   clickEffect.sf = null;
   isLooped = false;
+  laserAP = 0;
   laserParticles = [];
   laserPaths = [];
   reflectors = [];
@@ -155,18 +157,17 @@ function draw() {
   }
 
   // update laser
-  makeNewLaserPath(); //// not during animated movement
+  laserAP = min(laserAP + LASER_SPEED, 1);
+  if (laserAP === 1) makeNewLaserPath();
 
   // Draw laser
   strokeWeight(10);
   stroke(...COLORS.LASER);
-  for (let i = 1; i < laserPaths.length; i++) {
+  for (let i = 0; i < laserPaths.length; i++) {
     const lp = laserPaths[i];
-    if (!lp.smallFace.isVisible) {
-      continue;
-    }
+    if (!lp.smallFace.isVisible) continue;
 
-    const midV1 = [
+    let midV1 = [
       (lp.smallFace.vertices[lp.e1i][0] +
         lp.smallFace.vertices[nti(lp.e1i + 1)][0]) /
         2,
@@ -174,7 +175,7 @@ function draw() {
         lp.smallFace.vertices[nti(lp.e1i + 1)][1]) /
         2,
     ];
-    const midV2 = [
+    let midV2 = [
       (lp.smallFace.vertices[lp.e2i][0] +
         lp.smallFace.vertices[nti(lp.e2i + 1)][0]) /
         2,
@@ -182,21 +183,38 @@ function draw() {
         lp.smallFace.vertices[nti(lp.e2i + 1)][1]) /
         2,
     ];
-    line(midV1[0], midV1[1], midV2[0], midV2[1]);
+
+    // first path? starts from inside the triangle
+    if (i === 0) {
+      midV1 = [(midV1[0] + midV2[0]) / 2, (midV1[1] + midV2[1]) / 2];
+    }
+
+    if (i < laserPaths.length - 1) {
+      line(midV1[0], midV1[1], midV2[0], midV2[1]);
+    }
+    // last path is animated & add particles
+    else {
+      const laserTipPos = [
+        midV1[0] + (midV2[0] - midV1[0]) * laserAP,
+        midV1[1] + (midV2[1] - midV1[1]) * laserAP,
+      ];
+      line(midV1[0], midV1[1], laserTipPos[0], laserTipPos[1]);
+
+      // add particles
+      const v0 = lp.smallFace.vertices[lp.e2i];
+      const v1 = lp.smallFace.vertices[nti(lp.e2i + 1)];
+      const randomDeg = random(0, 360);
+      laserParticles.push({
+        rPos: laserTipPos,
+        vPos: [
+          cos(randomDeg) * PARTICLE_SPEED,
+          sin(randomDeg) * PARTICLE_SPEED,
+        ],
+        s: 1,
+      });
+    }
   }
 
-  const lastLP = laserPaths[laserPaths.length - 1];
-  // add particles (if sf visible & not too frequently)
-  if (lastLP.smallFace.isVisible && frameCount % 2 === 0) {
-    const v0 = lastLP.smallFace.vertices[lastLP.e2i];
-    const v1 = lastLP.smallFace.vertices[nti(lastLP.e2i + 1)];
-    const randomDeg = random(0, 360);
-    laserParticles.push({
-      rPos: [(v0[0] + v1[0]) / 2, (v0[1] + v1[1]) / 2],
-      vPos: [cos(randomDeg) * PARTICLE_SPEED, sin(randomDeg) * PARTICLE_SPEED],
-      s: 1,
-    });
-  }
   // Draw laser particles
   stroke(...COLORS.LASER);
   for (let i = laserParticles.length - 1; i >= 0; i--) {
@@ -204,16 +222,16 @@ function draw() {
     // apply vPos to rPos
     lp.rPos[0] += lp.vPos[0];
     lp.rPos[1] += lp.vPos[1];
-    strokeWeight(lp.s * 13); // particle size
+    strokeWeight(lp.s * 12); // particle size
     point(lp.rPos[0], lp.rPos[1]);
-    lp.s -= 0.04;
+    lp.s -= 0.05;
     if (lp.s <= 0) {
       laserParticles.splice(i, 1);
     }
   }
 
   // check hover
-  for (let i = 0; i < mainFaces.length; i++) {
+  checkHoverLoop: for (let i = 0; i < mainFaces.length; i++) {
     const smallFaces = mainFaces[i].smallFaces;
     for (const sf of smallFaces) {
       if (!sf.isVisible) continue;
@@ -227,9 +245,20 @@ function draw() {
         )
       ) {
         hoveredSF = sf;
+        break checkHoverLoop;
       }
     }
   }
+
+  // Draw ////////// flash white fade back to color on trigger
+  noStroke();
+  textSize(32);
+  textAlign(LEFT);
+  fill(...COLORS.YELLOW);
+  text("0/8▲", -280, -260);
+  fill(...COLORS.LASER);
+  text("0/1▲", -280, -220);
+  textAlign(CENTER);
 
   updateTargetSF();
   // Draw targeting effect

@@ -15,6 +15,9 @@ function resetChecksIsHit() {
   for (let ci = 0; ci < checks.length; ci++) {
     checks[ci].isHit = getLaserPathIndexOf(checks[ci].sf) !== -1;
   }
+  // reset other stuffs too
+  isLooped = true;
+  laserAP = 1;
 }
 
 // return -1 if not found
@@ -48,7 +51,10 @@ function makeNewLaserPath() {
   // hitting a reflector or wall?
   if (reflectors.includes(nextSF) || walls.includes(nextSF)) {
     // does nothing if only one laser path
-    if (laserPaths.length === 1) return;
+    if (laserPaths.length === 1) {
+      isLooped = true;
+      return;
+    }
 
     const e1i = currentPath.e2i;
     laserPaths.push({
@@ -84,6 +90,7 @@ function makeNewLaserPath() {
       e2i: wasGoingClockwise ? nti(e1i - 1) : nti(e1i + 1),
     });
   }
+  laserAP = 0;
 }
 
 function nti(newIndex) {
