@@ -17,12 +17,8 @@ function applyRotation(angleY, angleX) {
   }
 
   // set .isVisible
-  for (let mfi = 0; mfi < mainFaces.length; mfi++) {
-    const smallFaces = mainFaces[mfi].smallFaces;
-    for (let sfi = 0; sfi < smallFaces.length; sfi++) {
-      const sf = smallFaces[sfi];
-      sf.isVisible = isFacingCanvas(sf.vertices);
-    }
+  for (let sfi = 0; sfi < allSmallFaces.length; sfi++) {
+    allSmallFaces[sfi].isVisible = isFacingCanvas(allSmallFaces[sfi].vertices);
   }
 }
 

@@ -20,24 +20,11 @@ function setup() {
   buildMainFaces();
   applyRotation(0, 0);
 
-  ///// reset
-  clickEffect.sf = null;
-  isLooped = false;
-  laserAP = 0;
-  laserParticles = [];
-  laserPaths = [];
-  reflectors = [];
-  walls = [];
-  checks = [];
+  generator.generate(2);
 
   //// set below after generated a puzzle
   laserSourceSF = mainFaces[0].smallFaces[0];
   initiateStarterLaserPath(); // add first laser path
-
-  //// wall dummy
-  walls[0] = mainFaces[5].smallFaces[0];
-  walls[1] = mainFaces[5].smallFaces[1];
-  walls[2] = mainFaces[5].smallFaces[2];
 
   // checks dummy
   checks[0] = {
@@ -231,22 +218,20 @@ function draw() {
   }
 
   // check hover
-  checkHoverLoop: for (let i = 0; i < mainFaces.length; i++) {
-    const smallFaces = mainFaces[i].smallFaces;
-    for (const sf of smallFaces) {
-      if (!sf.isVisible) continue;
-      if (
-        !hoveredSF &&
-        pointInTriangle(
-          [_mouseX - width / 2, _mouseY - height / 2],
-          sf.vertices[0],
-          sf.vertices[1],
-          sf.vertices[2]
-        )
-      ) {
-        hoveredSF = sf;
-        break checkHoverLoop;
-      }
+  for (let sfi = 0; sfi < allSmallFaces.length; sfi++) {
+    const sf = allSmallFaces[sfi];
+    if (!sf.isVisible) continue;
+    if (
+      !hoveredSF &&
+      pointInTriangle(
+        [_mouseX - width / 2, _mouseY - height / 2],
+        sf.vertices[0],
+        sf.vertices[1],
+        sf.vertices[2]
+      )
+    ) {
+      hoveredSF = sf;
+      break;
     }
   }
 

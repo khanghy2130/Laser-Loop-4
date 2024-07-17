@@ -19,7 +19,8 @@ const COLORS = {
 
 // DATA
 // smallFace {vertices[3], adjacents[3], isVisible}
-let mainFaces;
+let mainFaces = [];
+let allSmallFaces = [];
 let uniqueEdges = []; // {v0, v1, smallFaces[2]}
 let uniqueVertices = [];
 
@@ -30,7 +31,7 @@ let checks = []; // {sf, isHit, ap}[]
 
 let laserParticles = []; // {rPos, vPos, s}[]
 let laserPaths = [];
-let laserSourceSF;
+let laserSourceSF = null;
 let isLooped = false;
 let laserAP = 0;
 
@@ -77,6 +78,9 @@ function randomInt(start, end) {
 }
 function getRandomItem(arr) {
   return arr[randomInt(0, arr.length)];
+}
+function popRandomItem(arr) {
+  return arr.splice(randomInt(0, arr.length), 1)[0];
 }
 
 // disable right click menu

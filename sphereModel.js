@@ -234,6 +234,7 @@ function buildMainFaces() {
       adjacents: [],
       isVisible: false,
     }));
+    allSmallFaces.push(...mainFace.smallFaces);
   }
 
   // set up .adjacents to small faces
