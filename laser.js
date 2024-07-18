@@ -1,11 +1,11 @@
-// LaserPath {stepsLeft, smallFace, e1i, e2i}
+// LaserPath {stepsLeft, sf, e1i, e2i}
 // e1i: edge 1 index
 
 function initiateStarterLaserPath() {
-  const e1i = randomInt(0, 3);
+  const e1i = randomInt(3);
   laserPaths.push({
     stepsLeft: 10,
-    smallFace: laserSourceSF,
+    sf: laserSourceSF,
     e1i: e1i,
     e2i: nti(Math.random() > 0.5 ? e1i + 1 : e1i - 1),
   });
@@ -23,7 +23,7 @@ function resetChecksIsHit() {
 // return -1 if not found
 function getLaserPathIndexOf(sf) {
   for (let i = 0; i < laserPaths.length; i++) {
-    if (laserPaths[i].smallFace === sf) return i;
+    if (laserPaths[i].sf === sf) return i;
   }
   return -1;
 }
@@ -31,7 +31,7 @@ function getLaserPathIndexOf(sf) {
 function makeNewLaserPath() {
   // always has at least 1 path
   const currentPath = laserPaths[laserPaths.length - 1];
-  const nextSF = currentPath.smallFace.adjacents[currentPath.e2i];
+  const nextSF = currentPath.sf.adjacents[currentPath.e2i];
 
   // out of steps AND not reaching source/check?
   if (
@@ -43,7 +43,7 @@ function makeNewLaserPath() {
   }
 
   // currently e2i === e1i + 1?
-  const wasGoingClockwise =
+  const goingClockWise =
     (currentPath.e1i === 0 && currentPath.e2i === 1) ||
     (currentPath.e1i === 1 && currentPath.e2i === 2) ||
     (currentPath.e1i === 2 && currentPath.e2i === 0);
@@ -59,9 +59,9 @@ function makeNewLaserPath() {
     const e1i = currentPath.e2i;
     laserPaths.push({
       stepsLeft: currentPath.stepsLeft - 1,
-      smallFace: currentPath.smallFace,
+      sf: currentPath.sf,
       e1i: e1i,
-      e2i: wasGoingClockwise ? nti(e1i + 1) : nti(e1i - 1),
+      e2i: goingClockWise ? nti(e1i + 1) : nti(e1i - 1),
     });
   }
   // go straight?
@@ -81,13 +81,13 @@ function makeNewLaserPath() {
       }
     }
 
-    const e1i = nextSF.adjacents.indexOf(currentPath.smallFace);
+    const e1i = nextSF.adjacents.indexOf(currentPath.sf);
     laserPaths.push({
       // restore to 10 steps if reaching a check
       stepsLeft: reachingACheck ? 10 : currentPath.stepsLeft - 1,
-      smallFace: nextSF,
+      sf: nextSF,
       e1i: e1i,
-      e2i: wasGoingClockwise ? nti(e1i - 1) : nti(e1i + 1),
+      e2i: goingClockWise ? nti(e1i - 1) : nti(e1i + 1),
     });
   }
   laserAP = 0;

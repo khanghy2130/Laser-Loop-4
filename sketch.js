@@ -1,4 +1,5 @@
 function keyPressed() {
+  if (keyCode !== 32) return;
   generator.generate(3);
 }
 
@@ -24,19 +25,19 @@ function setup() {
   buildMainFaces();
   applyRotation(0, 0);
 
-  generator.generate(2);
+  generator.generate(1);
 
   // checks dummy
-  checks[0] = {
-    sf: mainFaces[2].smallFaces[3],
-    isHit: false,
-    ap: 0,
-  };
-  checks[1] = {
-    sf: mainFaces[3].smallFaces[1],
-    isHit: false,
-    ap: 0,
-  };
+  // checks[0] = {
+  //   sf: mainFaces[2].smallFaces[3],
+  //   isHit: false,
+  //   ap: 0,
+  // };
+  // checks[1] = {
+  //   sf: mainFaces[3].smallFaces[1],
+  //   isHit: false,
+  //   ap: 0,
+  // };
 }
 
 function draw() {
@@ -53,6 +54,7 @@ function draw() {
   for (let i = 0; i < reflectors.length; i++) {
     if (!reflectors[i].isVisible) continue;
     const vertices = reflectors[i].vertices;
+    fill(...COLORS.REFLECTOR); /////r
     triangle(
       vertices[0][0],
       vertices[0][1],
@@ -61,6 +63,12 @@ function draw() {
       vertices[2][0],
       vertices[2][1]
     );
+    fill(255); /////r
+    text(
+      i,
+      (vertices[0][0] + vertices[1][0] + vertices[2][0]) / 3,
+      (vertices[0][1] + vertices[1][1] + vertices[2][1]) / 3
+    ); /////r
   }
 
   // Draw walls
@@ -152,23 +160,15 @@ function draw() {
   stroke(...COLORS.LASER);
   for (let i = 0; i < laserPaths.length; i++) {
     const lp = laserPaths[i];
-    if (!lp.smallFace.isVisible) continue;
+    if (!lp.sf.isVisible) continue;
 
     let midV1 = [
-      (lp.smallFace.vertices[lp.e1i][0] +
-        lp.smallFace.vertices[nti(lp.e1i + 1)][0]) /
-        2,
-      (lp.smallFace.vertices[lp.e1i][1] +
-        lp.smallFace.vertices[nti(lp.e1i + 1)][1]) /
-        2,
+      (lp.sf.vertices[lp.e1i][0] + lp.sf.vertices[nti(lp.e1i + 1)][0]) / 2,
+      (lp.sf.vertices[lp.e1i][1] + lp.sf.vertices[nti(lp.e1i + 1)][1]) / 2,
     ];
     let midV2 = [
-      (lp.smallFace.vertices[lp.e2i][0] +
-        lp.smallFace.vertices[nti(lp.e2i + 1)][0]) /
-        2,
-      (lp.smallFace.vertices[lp.e2i][1] +
-        lp.smallFace.vertices[nti(lp.e2i + 1)][1]) /
-        2,
+      (lp.sf.vertices[lp.e2i][0] + lp.sf.vertices[nti(lp.e2i + 1)][0]) / 2,
+      (lp.sf.vertices[lp.e2i][1] + lp.sf.vertices[nti(lp.e2i + 1)][1]) / 2,
     ];
 
     // first path? starts from inside the triangle
@@ -188,8 +188,8 @@ function draw() {
       line(midV1[0], midV1[1], laserTipPos[0], laserTipPos[1]);
 
       // add particles
-      const v0 = lp.smallFace.vertices[lp.e2i];
-      const v1 = lp.smallFace.vertices[nti(lp.e2i + 1)];
+      const v0 = lp.sf.vertices[lp.e2i];
+      const v1 = lp.sf.vertices[nti(lp.e2i + 1)];
       const randomDeg = random(0, 360);
       laserParticles.push({
         rPos: laserTipPos,

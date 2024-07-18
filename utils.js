@@ -8,6 +8,8 @@ const CLICK_EFFECT_SPEED = 0.06;
 const PARTICLE_SPEED = 1.2;
 const LASER_SPEED = 0.2;
 
+const NEXT_REFLECTOR_RANGE = 8;
+
 const COLORS = {
   BG: [54, 0, 37],
   GRID: [250, 118, 186],
@@ -73,14 +75,14 @@ function getTriangleCenter(vertices) {
   ];
 }
 
-function randomInt(start, end) {
-  return Math.floor(Math.random() * end + start);
+function randomInt(end) {
+  return Math.floor(Math.random() * end);
 }
 function getRandomItem(arr) {
-  return arr[randomInt(0, arr.length)];
+  return arr[randomInt(arr.length)];
 }
 function popRandomItem(arr) {
-  return arr.splice(randomInt(0, arr.length), 1)[0];
+  return arr.splice(randomInt(arr.length), 1)[0];
 }
 
 // disable right click menu

@@ -2,23 +2,27 @@ const generator = {
   DIFFICULTY_OPTIONS: [
     // very easy
     {
-      REFLECTORS_AMOUNT: 5,
+      REFLECTORS_AMOUNT: [4, 5],
       WALL_GROUPS_AMOUNT: 0,
+      MIN_LASER_LENGTH: 20,
     },
     // easy
     {
-      REFLECTORS_AMOUNT: 8,
+      REFLECTORS_AMOUNT: [5, 6],
       WALL_GROUPS_AMOUNT: 2,
+      MIN_LASER_LENGTH: 30,
     },
     // hard
     {
-      REFLECTORS_AMOUNT: 8,
+      REFLECTORS_AMOUNT: [7, 8],
       WALL_GROUPS_AMOUNT: 3,
+      MIN_LASER_LENGTH: 40,
     },
     // very hard
     {
-      REFLECTORS_AMOUNT: 8,
+      REFLECTORS_AMOUNT: [9, 10],
       WALL_GROUPS_AMOUNT: 4,
+      MIN_LASER_LENGTH: 50,
     },
   ],
   diffOps: null,
@@ -44,8 +48,10 @@ const generator = {
 
     this.spawnLaserSource();
 
-    this.generateLaserLoop();
+    // this.generateLaserLoop();
 
+    // set up
+    ///reflectors = [];
     initiateStarterLaserPath();
   },
 
@@ -136,9 +142,5 @@ const generator = {
       }
       laserSourceSF = randomSF;
     }
-  },
-
-  generateLaserLoop: function () {
-    ////
   },
 };

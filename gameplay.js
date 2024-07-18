@@ -61,7 +61,7 @@ function triangleClicked(sf) {
       // check all laser paths on this asf
       for (let li = 0; li < laserPaths.length; li++) {
         // skip if not on this asf
-        if (laserPaths[li].smallFace !== asf) continue;
+        if (laserPaths[li].sf !== asf) continue;
         // was this laser going towards the removed reflector?
         if (laserPaths[li].e2i === asf.adjacents.indexOf(sf)) {
           laserPaths.length = li + 1;
