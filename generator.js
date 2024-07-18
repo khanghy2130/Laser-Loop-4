@@ -1,19 +1,24 @@
 const generator = {
   DIFFICULTY_OPTIONS: [
-    // easy
+    // very easy
     {
       REFLECTORS_AMOUNT: 5,
       WALL_GROUPS_AMOUNT: 0,
     },
-    // medium
+    // easy
     {
       REFLECTORS_AMOUNT: 8,
-      WALL_GROUPS_AMOUNT: 3,
+      WALL_GROUPS_AMOUNT: 2,
     },
     // hard
     {
       REFLECTORS_AMOUNT: 8,
-      WALL_GROUPS_AMOUNT: 5,
+      WALL_GROUPS_AMOUNT: 3,
+    },
+    // very hard
+    {
+      REFLECTORS_AMOUNT: 8,
+      WALL_GROUPS_AMOUNT: 4,
     },
   ],
   diffOps: null,
@@ -37,7 +42,11 @@ const generator = {
 
     this.generateWalls();
 
-    ///// pick starting sf for laser
+    this.spawnLaserSource();
+
+    this.generateLaserLoop();
+
+    initiateStarterLaserPath();
   },
 
   generateWalls: function () {
@@ -110,5 +119,26 @@ const generator = {
       }
     }
     return returnSFs;
+  },
+
+  spawnLaserSource: function () {
+    spawnSourceLoop: while (laserSourceSF === null) {
+      const randomSF = getRandomItem(allSmallFaces);
+      // check if is a wall
+      if (walls.includes(randomSF)) continue;
+      // check if is next to a wall
+      for (let ai = 0; ai < randomSF.adjacents.length; ai++) {
+        const asf = randomSF.adjacents[ai];
+        if (walls.includes(asf)) continue spawnSourceLoop;
+        for (let ai2 = 0; ai2 < asf.adjacents.length; ai2++) {
+          if (walls.includes(asf.adjacents[ai2])) continue spawnSourceLoop;
+        }
+      }
+      laserSourceSF = randomSF;
+    }
+  },
+
+  generateLaserLoop: function () {
+    ////
   },
 };

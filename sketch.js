@@ -1,3 +1,7 @@
+function keyPressed() {
+  generator.generate(3);
+}
+
 // nKA
 let _mouseX, _mouseY;
 let scaleFactor = 1;
@@ -21,10 +25,6 @@ function setup() {
   applyRotation(0, 0);
 
   generator.generate(2);
-
-  //// set below after generated a puzzle
-  laserSourceSF = mainFaces[0].smallFaces[0];
-  initiateStarterLaserPath(); // add first laser path
 
   // checks dummy
   checks[0] = {
@@ -242,7 +242,7 @@ function draw() {
   fill(...COLORS.YELLOW);
   text("0/8▲", -280, -260);
   fill(...COLORS.LASER);
-  text("0/1▲", -280, -220);
+  text("∞▲", -280, -220);
   textAlign(CENTER);
 
   updateTargetSF();
