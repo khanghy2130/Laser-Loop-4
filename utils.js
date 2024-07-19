@@ -8,7 +8,8 @@ const CLICK_EFFECT_SPEED = 0.06;
 const PARTICLE_SPEED = 1.2;
 const LASER_SPEED = 0.2;
 
-const NEXT_REFLECTOR_RANGE = 8;
+const NEXT_REFLECTOR_RANGE = 10;
+const SKIP_CHANCE_FACTOR = 0.15;
 
 const COLORS = {
   BG: [54, 0, 37],

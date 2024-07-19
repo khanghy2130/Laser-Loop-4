@@ -25,7 +25,7 @@ function setup() {
   buildMainFaces();
   applyRotation(0, 0);
 
-  generator.generate(1);
+  generator.generate(0);
 
   // checks dummy
   // checks[0] = {
@@ -41,6 +41,8 @@ function setup() {
 }
 
 function draw() {
+  if (generator.isGeneratingLaser) generator.stepGenerateLaser();
+
   _mouseX = mouseX / scaleFactor;
   _mouseY = mouseY / scaleFactor;
   touchCountdown--;
@@ -153,7 +155,7 @@ function draw() {
 
   // update laser
   laserAP = min(laserAP + LASER_SPEED, 1);
-  if (laserAP === 1) makeNewLaserPath();
+  // if (laserAP === 1) makeNewLaserPath(); ////////
 
   // Draw laser
   strokeWeight(10);
@@ -233,6 +235,28 @@ function draw() {
       hoveredSF = sf;
       break;
     }
+  }
+
+  /// test: draw current pathsAhead
+  noStroke();
+  const pathsAhead =
+    generator.generatedHistory[generator.generatedHistory.length - 1]
+      .pathsAhead;
+  for (let i = 0; i < pathsAhead.length; i++) {
+    const pa = pathsAhead[i];
+    if (!pa.sf.isVisible) continue;
+    const vs = pa.sf.vertices;
+    if (pa.canPlaceHere) fill(0, 100, 255, 200);
+    else fill(255, 100, 0, 100);
+    triangle(vs[0][0], vs[0][1], vs[1][0], vs[1][1], vs[2][0], vs[2][1]);
+  }
+  /// test: draw visited sfs
+  for (let i = 0; i < generator.visitedSFs.length; i++) {
+    const sf = generator.visitedSFs[i];
+    if (!sf.isVisible) continue;
+    const vs = sf.vertices;
+    fill(255, 255, 255, 100);
+    triangle(vs[0][0], vs[0][1], vs[1][0], vs[1][1], vs[2][0], vs[2][1]);
   }
 
   // Draw ////////// flash white fade back to color on trigger

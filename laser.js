@@ -4,7 +4,7 @@
 function initiateStarterLaserPath() {
   const e1i = randomInt(3);
   laserPaths.push({
-    stepsLeft: 10,
+    stepsLeft: 5,
     sf: laserSourceSF,
     e1i: e1i,
     e2i: nti(Math.random() > 0.5 ? e1i + 1 : e1i - 1),
@@ -43,7 +43,7 @@ function makeNewLaserPath() {
   }
 
   // currently e2i === e1i + 1?
-  const goingClockWise =
+  const goingClockwise =
     (currentPath.e1i === 0 && currentPath.e2i === 1) ||
     (currentPath.e1i === 1 && currentPath.e2i === 2) ||
     (currentPath.e1i === 2 && currentPath.e2i === 0);
@@ -61,7 +61,7 @@ function makeNewLaserPath() {
       stepsLeft: currentPath.stepsLeft - 1,
       sf: currentPath.sf,
       e1i: e1i,
-      e2i: goingClockWise ? nti(e1i + 1) : nti(e1i - 1),
+      e2i: goingClockwise ? nti(e1i + 1) : nti(e1i - 1),
     });
   }
   // go straight?
@@ -87,7 +87,7 @@ function makeNewLaserPath() {
       stepsLeft: reachingACheck ? 10 : currentPath.stepsLeft - 1,
       sf: nextSF,
       e1i: e1i,
-      e2i: goingClockWise ? nti(e1i - 1) : nti(e1i + 1),
+      e2i: goingClockwise ? nti(e1i - 1) : nti(e1i + 1),
     });
   }
   laserAP = 0;
