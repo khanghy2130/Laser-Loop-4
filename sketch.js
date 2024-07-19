@@ -25,7 +25,7 @@ function setup() {
   buildMainFaces();
   applyRotation(0, 0);
 
-  generator.generate(0);
+  generator.generate(randomInt(4));
 
   // checks dummy
   // checks[0] = {
@@ -41,13 +41,18 @@ function setup() {
 }
 
 function draw() {
-  if (generator.isGeneratingLaser) generator.stepGenerateLaser();
-
   _mouseX = mouseX / scaleFactor;
   _mouseY = mouseY / scaleFactor;
   touchCountdown--;
   hoveredSF = null;
   background(...COLORS.BG);
+
+  /////// test
+  if (generator.isGeneratingLaser) generator.stepGenerateLaser();
+  noStroke();
+  fill(255);
+  text(generator.diffOps.MIN_LASER_LENGTH, 50, 550);
+
   translate(width / 2, height / 2);
 
   // Draw reflectors

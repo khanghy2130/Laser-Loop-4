@@ -204,10 +204,11 @@ const generator = {
       gHistory.nextOnePopped = true;
     }
 
-    // if qualified and reaching source then finish laser generation
+    // if long enough & enough reflectors & reachedSource then finish laser generation
     if (
       gHistory.reachedSource &&
-      this.diffOps.MIN_LASER_LENGTH < this.visitedSFs.length
+      this.diffOps.MIN_LASER_LENGTH < this.visitedSFs.length &&
+      reflectors.length > this.diffOps.REFLECTORS_AMOUNT[0]
     ) {
       print("%c LASER DONE!", "color: pink");
       this.isGeneratingLaser = false;

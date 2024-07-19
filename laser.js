@@ -4,7 +4,7 @@
 function initiateStarterLaserPath() {
   const e1i = randomInt(3);
   laserPaths.push({
-    stepsLeft: 5,
+    stepsLeft: 10,
     sf: laserSourceSF,
     e1i: e1i,
     e2i: nti(Math.random() > 0.5 ? e1i + 1 : e1i - 1),
