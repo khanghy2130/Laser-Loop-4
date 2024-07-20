@@ -3,12 +3,14 @@
 
 function initiateStarterLaserPath() {
   const e1i = randomInt(3);
-  laserPaths.push({
-    stepsLeft: 10,
-    sf: laserSourceSF,
-    e1i: e1i,
-    e2i: nti(Math.random() > 0.5 ? e1i + 1 : e1i - 1),
-  });
+  laserPaths = [
+    {
+      stepsLeft: MAX_STEPS,
+      sf: laserSourceSF,
+      e1i: e1i,
+      e2i: nti(Math.random() > 0.5 ? e1i + 1 : e1i - 1),
+    },
+  ];
 }
 
 function resetChecksIsHit() {
@@ -33,12 +35,8 @@ function makeNewLaserPath() {
   const currentPath = laserPaths[laserPaths.length - 1];
   const nextSF = currentPath.sf.adjacents[currentPath.e2i];
 
-  // out of steps AND not reaching source/check?
-  if (
-    currentPath.stepsLeft <= 0 &&
-    nextSF !== laserSourceSF &&
-    !checksIncludes(nextSF)
-  ) {
+  // out of steps AND not reaching source?
+  if (currentPath.stepsLeft <= 0 && nextSF !== laserSourceSF) {
     return;
   }
 
@@ -72,19 +70,19 @@ function makeNewLaserPath() {
       return;
     }
 
-    let reachingACheck = false;
+    let reachingCheck = false;
     for (let ci = 0; ci < checks.length; ci++) {
-      if (checks[ci].sf === nextSF) {
+      // reached a check that is not hit yet?
+      if (checks[ci].sf === nextSF && !checks[ci].isHit) {
         checks[ci].isHit = true;
-        reachingACheck = true;
+        reachingCheck = true;
         break;
       }
     }
 
     const e1i = nextSF.adjacents.indexOf(currentPath.sf);
     laserPaths.push({
-      // restore to 10 steps if reaching a check
-      stepsLeft: reachingACheck ? 10 : currentPath.stepsLeft - 1,
+      stepsLeft: reachingCheck ? MAX_STEPS : currentPath.stepsLeft - 1,
       sf: nextSF,
       e1i: e1i,
       e2i: goingClockwise ? nti(e1i - 1) : nti(e1i + 1),

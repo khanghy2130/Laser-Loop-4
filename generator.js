@@ -1,28 +1,22 @@
 const generator = {
   DIFFICULTY_OPTIONS: [
-    // very easy
-    {
-      REFLECTORS_AMOUNT: [3, 4],
-      WALL_GROUPS_AMOUNT: 0,
-      MIN_LASER_LENGTH: 15,
-    },
     // easy
     {
-      REFLECTORS_AMOUNT: [4, 5],
-      WALL_GROUPS_AMOUNT: 2,
-      MIN_LASER_LENGTH: 25,
+      REFLECTORS_AMOUNT: 4,
+      WALL_GROUPS_AMOUNT: 3,
+      LASER_LENGTH: [20, 35],
+    },
+    // medium
+    {
+      REFLECTORS_AMOUNT: 5,
+      WALL_GROUPS_AMOUNT: 4,
+      LASER_LENGTH: [35, 50],
     },
     // hard
     {
-      REFLECTORS_AMOUNT: [6, 7],
-      WALL_GROUPS_AMOUNT: 3,
-      MIN_LASER_LENGTH: 30,
-    },
-    // very hard
-    {
-      REFLECTORS_AMOUNT: [8, 10],
-      WALL_GROUPS_AMOUNT: 4,
-      MIN_LASER_LENGTH: 45,
+      REFLECTORS_AMOUNT: 6,
+      WALL_GROUPS_AMOUNT: 5,
+      LASER_LENGTH: [50, 60],
     },
   ],
   diffOps: null,
@@ -31,27 +25,20 @@ const generator = {
     clickEffect.sf = null;
     isLooped = false;
     laserAP = 0;
-    laserSourceSF = null;
     laserParticles.length = 0;
     laserPaths.length = 0;
-    reflectors.length = 0;
     walls.length = 0;
     checks.length = 0;
   },
 
   // difficultyLevel is index of DIFFICULTY_OPTIONS
   generate: function (difficultyLevel) {
+    scene = "GENERATING";
     this.diffOps = this.DIFFICULTY_OPTIONS[difficultyLevel];
     this.resetGame();
-
     this.generateWalls();
-
     this.spawnLaserSource();
-
     this.startGenerateLaser();
-
-    // set up
-    // initiateStarterLaserPath();
   },
 
   generateWalls: function () {
@@ -127,6 +114,7 @@ const generator = {
   },
 
   spawnLaserSource: function () {
+    laserSourceSF = null;
     spawnSourceLoop: while (laserSourceSF === null) {
       const randomSF = getRandomItem(allSmallFaces);
       // check if is a wall
@@ -163,6 +151,7 @@ const generator = {
   visitedSFs: [], // sfs with laser, can't place reflector on these
 
   isGeneratingLaser: false,
+  laserInfo: { e1i: 0, e2i: 0 },
   startGenerateLaser: function () {
     reflectors.length = 0;
     this.isGeneratingLaser = true;
@@ -171,13 +160,15 @@ const generator = {
 
     const e1i = randomInt(3);
     const goingClockwise = Math.random() > 0.5;
+    const e2i = nti(goingClockwise ? e1i + 1 : e1i - 1);
     this.addNewHistory({
       sf: laserSourceSF,
       e1i: e1i,
-      e2i: nti(goingClockwise ? e1i + 1 : e1i - 1),
+      e2i: e2i,
       canPlaceHere: false,
       goingClockwise: goingClockwise,
     });
+    this.laserInfo = { e1i: e1i, e2i: e2i };
   },
 
   // results in placing a reflector
@@ -187,7 +178,7 @@ const generator = {
     const placeablePathIndices = [];
 
     // if still allow to place more reflectors
-    if (reflectors.length < this.diffOps.REFLECTORS_AMOUNT[1]) {
+    if (reflectors.length < this.diffOps.REFLECTORS_AMOUNT) {
       // skip first 2 as they for sure can't be placed
       for (let i = 2; i < pathsAhead.length; i++) {
         if (pathsAhead[i].canPlaceHere) {
@@ -198,20 +189,42 @@ const generator = {
         }
       }
     }
-    // can't place more? if skipping is also not allowed then nextOnePopped
-    else if (!gHistory.reachedReflector) {
-      print("%c no more reflectors allowed & can't skip", "color: blue");
+    // can't place more? if skipping is not possible OR already too long
+    else if (
+      !gHistory.reachedReflector ||
+      this.diffOps.LASER_LENGTH[1] < this.visitedSFs.length
+    ) {
       gHistory.nextOnePopped = true;
     }
 
-    // if long enough & enough reflectors & reachedSource then finish laser generation
+    // if long enough & reachedSource then finish laser generation
     if (
       gHistory.reachedSource &&
-      this.diffOps.MIN_LASER_LENGTH < this.visitedSFs.length &&
-      reflectors.length > this.diffOps.REFLECTORS_AMOUNT[0]
+      this.diffOps.LASER_LENGTH[0] <= this.visitedSFs.length &&
+      this.diffOps.LASER_LENGTH[1] >= this.visitedSFs.length
     ) {
-      print("%c LASER DONE!", "color: pink");
+      // regenerate if not within unique perentage
+      const uniqueSFs = [];
+      for (let i = 0; i < this.visitedSFs.length; i++) {
+        const sf = this.visitedSFs[i];
+        if (!uniqueSFs.includes(sf)) uniqueSFs.push(sf);
+      }
+      const uniquePercentage = uniqueSFs.length / this.visitedSFs.length;
+      if (
+        uniquePercentage < UNIQUE_PERCENTAGES[0] ||
+        uniquePercentage > UNIQUE_PERCENTAGES[1]
+      ) {
+        this.startGenerateLaser();
+        return;
+      }
+
+      // FINALIZE LASER GENERATION
+      // add the remaining to visited sfs (NOTE: the laser length could be longer than max)
+      for (let i = 0; i < pathsAhead.length; i++) {
+        this.visitedSFs.push(pathsAhead[i].sf);
+      }
       this.isGeneratingLaser = false;
+      this.generateChecks();
       return;
     }
 
@@ -239,9 +252,6 @@ const generator = {
       // cut the previously visited sfs
       const laserSegmentLength = prevHistory.laserSegmentLength;
       this.visitedSFs.length = this.visitedSFs.length - laserSegmentLength;
-
-      print("%c history popped", "color: red;");
-      print("removed from visited: " + laserSegmentLength);
       return;
     }
 
@@ -254,12 +264,6 @@ const generator = {
     if (gHistory.reachedReflector && !gHistory.nextOnePopped) {
       doesPlacing =
         Math.random() < SKIP_CHANCE_FACTOR * placeablePathIndices.length;
-      print(
-        `%c${doesPlacing ? "Didn't skip" : "Skipped"}; chance to place: ${
-          SKIP_CHANCE_FACTOR * placeablePathIndices.length
-        }`,
-        "color: yellow"
-      );
     }
 
     if (doesPlacing) {
@@ -271,14 +275,12 @@ const generator = {
       pickedPA.canPlaceHere = false; // mark this to ignore later when undoing
       visitedAmount = pickedIndex;
       reflectedPath = pathsAhead[pickedIndex - 1];
-      print("%c placed reflector!", "color: green");
     }
 
     // add to visitedSFs
     for (let i = 0; i < visitedAmount; i++) {
       this.visitedSFs.push(pathsAhead[i].sf);
     }
-    print("added to visited: " + visitedAmount);
     gHistory.laserSegmentLength = visitedAmount; // set segment length
 
     // add new one to history for the new direction
@@ -339,7 +341,102 @@ const generator = {
       nextOnePopped: false,
       doesPlacing: false,
     });
+  },
 
-    print("Added new one to history. pa length: " + pathsAhead.length);
+  generateChecks: function () {
+    let lastCheckIndex = 0;
+    // filling in the checks until the end
+    while (lastCheckIndex + MAX_STEPS < this.visitedSFs.length) {
+      let nextCheckIndex = lastCheckIndex + MAX_STEPS;
+      // if is first one then randomly be 0-2 shorter
+      // goal: make the starting more varied
+      if (lastCheckIndex === 0) {
+        nextCheckIndex -= randomInt(3);
+      }
+      let countBacks = 0; // goal: prevents too short jump
+
+      lookForEmptySF: while (true) {
+        for (let ci = 0; ci < checks.length; ci++) {
+          // if there is a check on this sf already or laser already got here
+          const alreadyHasCheck =
+            checks[ci].sf === this.visitedSFs[nextCheckIndex];
+          const laserAlreadyVisited = this.visitedSFs
+            .slice(0, nextCheckIndex)
+            .includes(this.visitedSFs[nextCheckIndex]);
+          if (alreadyHasCheck || laserAlreadyVisited) {
+            nextCheckIndex--;
+            countBacks++;
+            // if counted back too much then restart all
+            if (countBacks > 2) {
+              this.generate(this.DIFFICULTY_OPTIONS.indexOf(this.diffOps));
+              return;
+            }
+            continue lookForEmptySF;
+          }
+        }
+        break; // no check here
+      }
+
+      lastCheckIndex = nextCheckIndex;
+      checks.push({
+        sf: this.visitedSFs[nextCheckIndex],
+        isHit: false,
+        ap: 0,
+      });
+    }
+    this.finalizeGeneration();
+  },
+
+  finalizeGeneration: function () {
+    // check for solvability
+    laserPaths.length = [0];
+    laserPaths.push({
+      stepsLeft: MAX_STEPS,
+      sf: laserSourceSF,
+      e1i: this.laserInfo.e1i,
+      e2i: this.laserInfo.e2i,
+    });
+
+    let isSolvable = false;
+    for (let i = 0; i < 100; i++) {
+      makeNewLaserPath();
+      if (isLooped) {
+        // check if all checks are hit
+        let allChecksHit = true;
+        for (let ci = 0; ci < checks.length; ci++) {
+          if (!checks[ci].isHit) {
+            allChecksHit = false;
+            break;
+          }
+        }
+        isSolvable = allChecksHit;
+        break;
+      }
+    }
+    if (!isSolvable) {
+      print("not solvable");
+      this.generate(this.DIFFICULTY_OPTIONS.indexOf(this.diffOps));
+      return;
+    }
+
+    // is solvable: set up gameplay
+    initiateStarterLaserPath();
+    resetChecksIsHit();
+    scene = "PLAY";
   },
 };
+
+function generatingScene() {
+  fill(255);
+  noStroke();
+  textSize(30);
+  text("generating...\n" + floor(frameRate()), 300, 300);
+
+  // multi stepping
+  if (generator.isGeneratingLaser) {
+    for (let i = 0; i < 70; i++) {
+      if (!generator.isGeneratingLaser) break;
+      generator.stepGenerateLaser();
+    }
+  }
+}

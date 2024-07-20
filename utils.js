@@ -8,8 +8,10 @@ const CLICK_EFFECT_SPEED = 0.06;
 const PARTICLE_SPEED = 1.2;
 const LASER_SPEED = 0.2;
 
-const NEXT_REFLECTOR_RANGE = 10;
+const MAX_STEPS = 5;
+const NEXT_REFLECTOR_RANGE = 8; // max range
 const SKIP_CHANCE_FACTOR = 0.15;
+const UNIQUE_PERCENTAGES = [0.62, 0.79];
 
 const COLORS = {
   BG: [54, 0, 37],
@@ -20,7 +22,7 @@ const COLORS = {
   YELLOW: [255, 255, 0],
 };
 
-// DATA
+// GAMEPLAY DATA
 // smallFace {vertices[3], adjacents[3], isVisible}
 let mainFaces = [];
 let allSmallFaces = [];
@@ -47,6 +49,9 @@ const clickEffect = {
   sf: null,
   ap: 1,
 };
+
+// OTHER DATA
+let scene = "GENERATING";
 
 const targetingEffect = {
   sf: null,
