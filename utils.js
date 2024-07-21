@@ -13,12 +13,14 @@ const NEXT_REFLECTOR_RANGE = 8; // max range
 const SKIP_CHANCE_FACTOR = 0.15;
 const UNIQUE_PERCENTAGES = [0.62, 0.79];
 
+const SPHERE_TRANSITION_SPEED = 0.05;
+const BUTTON_TRANSITION_SPEED = 0.3;
+
 const COLORS = {
   BG: [54, 0, 37],
   GRID: [250, 118, 186],
   LASER: [35, 255, 115],
   REFLECTOR: [204, 55, 133],
-  WALL: [250, 118, 186],
   YELLOW: [255, 255, 0],
 };
 
@@ -50,9 +52,6 @@ const clickEffect = {
   ap: 1,
 };
 
-// OTHER DATA
-let scene = "GENERATING";
-
 const targetingEffect = {
   sf: null,
   renderVertices: [
@@ -60,6 +59,47 @@ const targetingEffect = {
     [0, 0],
     [0, 0],
   ],
+};
+
+const GameButton = function (x, y, w, h, ts, t, clicked) {
+  this.x = x;
+  this.y = y;
+  this.w = w;
+  this.h = h;
+  this.ts = ts;
+  this.t = t;
+  this.clicked = clicked;
+  this.isHovered = false;
+  this.ap = 0; // hovered is towards 1
+};
+GameButton.prototype.render = function () {
+  // check hover
+  if (
+    _mouseX > this.x - this.w / 2 &&
+    _mouseX < this.x + this.w / 2 &&
+    _mouseY > this.y - this.h / 2 &&
+    _mouseY < this.y + this.h / 2
+  ) {
+    this.isHovered = true;
+    cursor(HAND);
+  } else {
+    this.isHovered = false;
+  }
+
+  // update .ap
+  if (this.isHovered) this.ap += (1 - this.ap) * BUTTON_TRANSITION_SPEED;
+  else this.ap += (0 - this.ap) * BUTTON_TRANSITION_SPEED;
+  this.ap = constrain(this.ap, 0, 1);
+
+  // render
+  noStroke();
+  fill(...COLORS.GRID);
+  rect(this.x, this.y, this.w, this.h);
+  fill(...COLORS.LASER);
+  rect(this.x, this.y, this.w * this.ap, this.h);
+  textSize(this.ts);
+  fill(...COLORS.BG);
+  text(this.t, this.x, this.y);
 };
 
 // HELPERS

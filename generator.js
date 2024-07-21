@@ -22,6 +22,7 @@ const generator = {
   diffOps: null,
 
   resetGame() {
+    this.isDoneGenerating = false;
     clickEffect.sf = null;
     isLooped = false;
     laserAP = 0;
@@ -422,21 +423,6 @@ const generator = {
     // is solvable: set up gameplay
     initiateStarterLaserPath();
     resetChecksIsHit();
-    scene = "PLAY";
+    this.isDoneGenerating = true;
   },
 };
-
-function generatingScene() {
-  fill(255);
-  noStroke();
-  textSize(30);
-  text("generating...\n" + floor(frameRate()), 300, 300);
-
-  // multi stepping
-  if (generator.isGeneratingLaser) {
-    for (let i = 0; i < 70; i++) {
-      if (!generator.isGeneratingLaser) break;
-      generator.stepGenerateLaser();
-    }
-  }
-}

@@ -51,7 +51,7 @@ function playScene() {
   }
 
   // Draw walls
-  fill(...COLORS.WALL);
+  fill(...COLORS.GRID);
   for (let i = 0; i < walls.length; i++) {
     if (!walls[i].isVisible) continue;
     const vertices = walls[i].vertices;
@@ -109,7 +109,7 @@ function playScene() {
   // Draw click effect
   if (clickEffect.sf) {
     clickEffect.ap += CLICK_EFFECT_SPEED;
-    fill(...COLORS.WALL, min(1 - clickEffect.ap, 1) * 255);
+    fill(...COLORS.GRID, min(1 - clickEffect.ap, 1) * 255);
     triangle(
       clickEffect.sf.vertices[0][0],
       clickEffect.sf.vertices[0][1],
@@ -254,7 +254,20 @@ function playScene() {
   // Draw targeting effect
   noFill();
   strokeWeight(6);
-  stroke(...COLORS.YELLOW);
+  stroke(...COLORS.GRID);
   const rv = targetingEffect.renderVertices;
   triangle(rv[0][0], rv[0][1], rv[1][0], rv[1][1], rv[2][0], rv[2][1]);
+
+  // Draw light up transition
+  if (sphereInfo.light > 0) {
+    noStroke();
+    fill(...COLORS.GRID, 255 * sphereInfo.light);
+    for (let i = 0; i < allSmallFaces.length; i++) {
+      const sf = allSmallFaces[i];
+      if (!sf.isVisible) continue;
+      const vs = sf.vertices;
+      triangle(vs[0][0], vs[0][1], vs[1][0], vs[1][1], vs[2][0], vs[2][1]);
+    }
+    sphereInfo.light = max(sphereInfo.light - 0.05, 0);
+  }
 }

@@ -1,6 +1,6 @@
 function keyPressed() {
   if (keyCode !== 32) return;
-  generator.generate(2);
+  generator.generate(1);
 }
 
 // nKA
@@ -20,32 +20,32 @@ function setup() {
   textFont("Agency FB");
   angleMode(DEGREES);
   textAlign(CENTER, CENTER);
+  rectMode(CENTER);
   strokeJoin(ROUND);
 
   buildMainFaces();
   applyRotation(0, 0);
-
-  generator.generate(randomInt(generator.DIFFICULTY_OPTIONS.length)); ///r
 }
 
 function draw() {
   _mouseX = mouseX / scaleFactor;
   _mouseY = mouseY / scaleFactor;
   touchCountdown--;
+  cursor(ARROW);
   background(...COLORS.BG);
 
-  if (scene === "GENERATING") {
-    generatingScene();
-  } else if (scene === "PLAY") {
-    playScene();
+  if (scene === "PLAY") playScene();
+  else {
+    renderSphere();
+    if (scene === "TITLE") titleScene();
+    else if (scene === "SELECT") selectScene();
+    else if (scene === "GENERATING") generatingScene();
   }
 }
 
 function mouseDragged() {
   isDragging = true;
-  if (scene === "PLAY") {
-    playSceneMouseDragged();
-  }
+  if (scene === "PLAY") playSceneMouseDragged();
 }
 
 function touchStarted() {
@@ -69,7 +69,7 @@ function touchEnded() {
     touchCountdown = 5;
   }
 
-  if (scene === "PLAY") {
-    playSceneTouchEnded();
-  }
+  if (scene === "PLAY") playSceneTouchEnded();
+  else if (scene === "SELECT") selectSceneTouchEnded();
+  else if (scene === "TITLE") titleSceneTouchEnded();
 }
