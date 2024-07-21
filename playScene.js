@@ -14,6 +14,11 @@ function playSceneTouchEnded() {
 
 function playScene() {
   hoveredSF = null;
+  let LASER_COLOR =
+    brightLaserAP === 0
+      ? color(...COLORS.LASER)
+      : lerpColor(color(...COLORS.LASER), color(255), brightLaserAP);
+  brightLaserAP = max(brightLaserAP - 0.05, 0);
 
   /////// test
   noStroke();
@@ -94,7 +99,7 @@ function playScene() {
 
   // Draw laserSource
   if (laserSourceSF.isVisible) {
-    fill(...COLORS.LASER);
+    fill(LASER_COLOR);
     noStroke();
     triangle(
       laserSourceSF.vertices[0][0],
@@ -130,71 +135,7 @@ function playScene() {
     }
   }
 
-  // update laser
-  laserAP = min(laserAP + LASER_SPEED, 1);
-  if (laserAP === 1) makeNewLaserPath();
-
-  // Draw laser
-  strokeWeight(10);
-  stroke(...COLORS.LASER);
-  for (let i = 0; i < laserPaths.length; i++) {
-    const lp = laserPaths[i];
-    if (!lp.sf.isVisible) continue;
-
-    let midV1 = [
-      (lp.sf.vertices[lp.e1i][0] + lp.sf.vertices[nti(lp.e1i + 1)][0]) / 2,
-      (lp.sf.vertices[lp.e1i][1] + lp.sf.vertices[nti(lp.e1i + 1)][1]) / 2,
-    ];
-    let midV2 = [
-      (lp.sf.vertices[lp.e2i][0] + lp.sf.vertices[nti(lp.e2i + 1)][0]) / 2,
-      (lp.sf.vertices[lp.e2i][1] + lp.sf.vertices[nti(lp.e2i + 1)][1]) / 2,
-    ];
-
-    // first path? starts from inside the triangle
-    if (i === 0) {
-      midV1 = [(midV1[0] + midV2[0]) / 2, (midV1[1] + midV2[1]) / 2];
-    }
-
-    if (i < laserPaths.length - 1) {
-      line(midV1[0], midV1[1], midV2[0], midV2[1]);
-    }
-    // last path is animated & add particles
-    else {
-      const laserTipPos = [
-        midV1[0] + (midV2[0] - midV1[0]) * laserAP,
-        midV1[1] + (midV2[1] - midV1[1]) * laserAP,
-      ];
-      line(midV1[0], midV1[1], laserTipPos[0], laserTipPos[1]);
-
-      // add particles
-      const v0 = lp.sf.vertices[lp.e2i];
-      const v1 = lp.sf.vertices[nti(lp.e2i + 1)];
-      const randomDeg = random(0, 360);
-      laserParticles.push({
-        rPos: laserTipPos,
-        vPos: [
-          cos(randomDeg) * PARTICLE_SPEED,
-          sin(randomDeg) * PARTICLE_SPEED,
-        ],
-        s: 1,
-      });
-    }
-  }
-
-  // Draw laser particles
-  stroke(...COLORS.LASER);
-  for (let i = laserParticles.length - 1; i >= 0; i--) {
-    const lp = laserParticles[i];
-    // apply vPos to rPos
-    lp.rPos[0] += lp.vPos[0];
-    lp.rPos[1] += lp.vPos[1];
-    strokeWeight(lp.s * 12); // particle size
-    point(lp.rPos[0], lp.rPos[1]);
-    lp.s -= 0.05;
-    if (lp.s <= 0) {
-      laserParticles.splice(i, 1);
-    }
-  }
+  renderLaser(LASER_COLOR);
 
   // check hover
   for (let sfi = 0; sfi < allSmallFaces.length; sfi++) {
@@ -230,25 +171,21 @@ function playScene() {
   //   }
   // }
   /// test: draw visited sfs
-  noStroke();
-  for (let i = 0; i < generator.visitedSFs.length; i++) {
-    const sf = generator.visitedSFs[i];
-    if (!sf.isVisible) continue;
-    if (floor(frameCount / 10) % generator.visitedSFs.length !== i) continue;
-    const vs = sf.vertices;
-    fill(255, 255, 255, 100);
-    triangle(vs[0][0], vs[0][1], vs[1][0], vs[1][1], vs[2][0], vs[2][1]);
-  }
+  // noStroke();
+  // for (let i = 0; i < generator.visitedSFs.length; i++) {
+  //   const sf = generator.visitedSFs[i];
+  //   if (!sf.isVisible) continue;
+  //   if (floor(frameCount / 10) % generator.visitedSFs.length !== i) continue;
+  //   const vs = sf.vertices;
+  //   fill(255, 255, 255, 100);
+  //   triangle(vs[0][0], vs[0][1], vs[1][0], vs[1][1], vs[2][0], vs[2][1]);
+  // }
 
   // Draw ////////// flash white fade back to color on trigger
   noStroke();
   textSize(32);
-  textAlign(LEFT);
   fill(...COLORS.YELLOW);
-  text("0/8▲", -280, -260);
-  fill(...COLORS.LASER);
-  text("∞▲", -280, -220);
-  textAlign(CENTER);
+  text("0/8▲", -250, -260);
 
   updateTargetSF();
   // Draw targeting effect

@@ -18,7 +18,7 @@ function resetChecksIsHit() {
     checks[ci].isHit = getLaserPathIndexOf(checks[ci].sf) !== -1;
   }
   // reset other stuffs too
-  isLooped = true;
+  isLooped = false;
   laserAP = 1;
 }
 
@@ -76,12 +76,14 @@ function makeNewLaserPath() {
       if (checks[ci].sf === nextSF && !checks[ci].isHit) {
         checks[ci].isHit = true;
         reachingCheck = true;
+        brightLaserAP = 1;
         break;
       }
     }
 
     const e1i = nextSF.adjacents.indexOf(currentPath.sf);
     laserPaths.push({
+      // restore steps?
       stepsLeft: reachingCheck ? MAX_STEPS : currentPath.stepsLeft - 1,
       sf: nextSF,
       e1i: e1i,
@@ -91,9 +93,135 @@ function makeNewLaserPath() {
   laserAP = 0;
 }
 
-function nti(newIndex) {
-  // only fixes one cycle
-  if (newIndex >= 3) return newIndex - 3;
-  if (newIndex <= -1) return newIndex + 3;
-  return newIndex;
+function resetTraveler() {
+  if (laserPaths.length < traveler.laserPathIndex) {
+    traveler.laserPathIndex = 1;
+    traveler.ap = 0;
+  }
+}
+
+function renderLaser(LASER_COLOR) {
+  // update laser
+  laserAP = min(laserAP + LASER_SPEED, 1);
+  if (laserAP === 1) makeNewLaserPath();
+
+  // Draw laser
+  strokeWeight(10);
+  stroke(LASER_COLOR);
+  for (let i = 0; i < laserPaths.length; i++) {
+    const lp = laserPaths[i];
+    if (!lp.sf.isVisible) continue;
+
+    let midV1 = [
+      (lp.sf.vertices[lp.e1i][0] + lp.sf.vertices[nti(lp.e1i + 1)][0]) / 2,
+      (lp.sf.vertices[lp.e1i][1] + lp.sf.vertices[nti(lp.e1i + 1)][1]) / 2,
+    ];
+    let midV2 = [
+      (lp.sf.vertices[lp.e2i][0] + lp.sf.vertices[nti(lp.e2i + 1)][0]) / 2,
+      (lp.sf.vertices[lp.e2i][1] + lp.sf.vertices[nti(lp.e2i + 1)][1]) / 2,
+    ];
+
+    // first path? starts from inside the triangle
+    if (i === 0) {
+      midV1 = [(midV1[0] + midV2[0]) / 2, (midV1[1] + midV2[1]) / 2];
+    }
+
+    if (i < laserPaths.length - 1) {
+      line(midV1[0], midV1[1], midV2[0], midV2[1]);
+    }
+    // last path is animated & add particles
+    else {
+      const laserTipPos = [
+        midV1[0] + (midV2[0] - midV1[0]) * laserAP,
+        midV1[1] + (midV2[1] - midV1[1]) * laserAP,
+      ];
+      line(midV1[0], midV1[1], laserTipPos[0], laserTipPos[1]);
+
+      // add particles
+      const v0 = lp.sf.vertices[lp.e2i];
+      const v1 = lp.sf.vertices[nti(lp.e2i + 1)];
+      const randomDeg = random(0, 360);
+      laserParticles.push({
+        rPos: laserTipPos,
+        vPos: [
+          cos(randomDeg) * PARTICLE_SPEED,
+          sin(randomDeg) * PARTICLE_SPEED,
+        ],
+        s: 1,
+      });
+    }
+  }
+
+  // Draw traveler
+  traveler.ap += isLooped ? 0.2 : 0.05;
+  if (traveler.ap >= 1) {
+    traveler.ap = 0;
+    traveler.laserPathIndex++;
+    resetTraveler();
+  }
+  // head
+  const headLP = laserPaths[traveler.laserPathIndex];
+  const tailLP = laserPaths[traveler.laserPathIndex - 1];
+  stroke(255);
+  if (headLP && headLP.sf.isVisible) {
+    let midV1 = [
+      (headLP.sf.vertices[headLP.e1i][0] +
+        headLP.sf.vertices[nti(headLP.e1i + 1)][0]) /
+        2,
+      (headLP.sf.vertices[headLP.e1i][1] +
+        headLP.sf.vertices[nti(headLP.e1i + 1)][1]) /
+        2,
+    ];
+    let midV2 = [
+      (headLP.sf.vertices[headLP.e2i][0] +
+        headLP.sf.vertices[nti(headLP.e2i + 1)][0]) /
+        2,
+      (headLP.sf.vertices[headLP.e2i][1] +
+        headLP.sf.vertices[nti(headLP.e2i + 1)][1]) /
+        2,
+    ];
+    const tipPos = [
+      midV1[0] + (midV2[0] - midV1[0]) * traveler.ap,
+      midV1[1] + (midV2[1] - midV1[1]) * traveler.ap,
+    ];
+    line(midV1[0], midV1[1], tipPos[0], tipPos[1]);
+  }
+  if (tailLP && tailLP.sf.isVisible && traveler.laserPathIndex > 1) {
+    let midV1 = [
+      (tailLP.sf.vertices[tailLP.e1i][0] +
+        tailLP.sf.vertices[nti(tailLP.e1i + 1)][0]) /
+        2,
+      (tailLP.sf.vertices[tailLP.e1i][1] +
+        tailLP.sf.vertices[nti(tailLP.e1i + 1)][1]) /
+        2,
+    ];
+    let midV2 = [
+      (tailLP.sf.vertices[tailLP.e2i][0] +
+        tailLP.sf.vertices[nti(tailLP.e2i + 1)][0]) /
+        2,
+      (tailLP.sf.vertices[tailLP.e2i][1] +
+        tailLP.sf.vertices[nti(tailLP.e2i + 1)][1]) /
+        2,
+    ];
+    const tipPos = [
+      midV1[0] + (midV2[0] - midV1[0]) * traveler.ap,
+      midV1[1] + (midV2[1] - midV1[1]) * traveler.ap,
+    ];
+    line(tipPos[0], tipPos[1], midV2[0], midV2[1]);
+  }
+
+  // Draw laser particles
+  stroke(...COLORS.LASER);
+  for (let i = laserParticles.length - 1; i >= 0; i--) {
+    const lp = laserParticles[i];
+    // apply vPos to rPos
+    lp.rPos[0] += lp.vPos[0];
+    lp.rPos[1] += lp.vPos[1];
+    strokeWeight(lp.s * 12); // particle size
+    point(lp.rPos[0], lp.rPos[1]);
+    lp.s -= 0.05;
+    if (lp.s <= 0) {
+      laserParticles.splice(i, 1);
+    }
+  }
 }

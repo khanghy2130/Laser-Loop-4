@@ -4,13 +4,13 @@ const generator = {
     {
       REFLECTORS_AMOUNT: 4,
       WALL_GROUPS_AMOUNT: 3,
-      LASER_LENGTH: [20, 35],
+      LASER_LENGTH: [20, 30],
     },
     // medium
     {
       REFLECTORS_AMOUNT: 5,
       WALL_GROUPS_AMOUNT: 4,
-      LASER_LENGTH: [35, 50],
+      LASER_LENGTH: [35, 45],
     },
     // hard
     {
@@ -25,8 +25,6 @@ const generator = {
     this.isDoneGenerating = false;
     clickEffect.sf = null;
     isLooped = false;
-    laserAP = 0;
-    laserParticles.length = 0;
     laserPaths.length = 0;
     walls.length = 0;
     checks.length = 0;
@@ -415,7 +413,6 @@ const generator = {
       }
     }
     if (!isSolvable) {
-      print("not solvable");
       this.generate(this.DIFFICULTY_OPTIONS.indexOf(this.diffOps));
       return;
     }
@@ -423,6 +420,10 @@ const generator = {
     // is solvable: set up gameplay
     initiateStarterLaserPath();
     resetChecksIsHit();
+    laserAP = 0;
+    brightLaserAP = 0;
+    laserParticles.length = 0;
+    hasCompleted = false;
     this.isDoneGenerating = true;
   },
 };

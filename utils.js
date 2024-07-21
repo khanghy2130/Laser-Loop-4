@@ -19,8 +19,8 @@ const BUTTON_TRANSITION_SPEED = 0.3;
 const COLORS = {
   BG: [54, 0, 37],
   GRID: [250, 118, 186],
-  LASER: [35, 255, 115],
-  REFLECTOR: [204, 55, 133],
+  LASER: [20, 237, 96],
+  REFLECTOR: [205, 55, 133],
   YELLOW: [255, 255, 0],
 };
 
@@ -41,6 +41,12 @@ let laserPaths = [];
 let laserSourceSF = null;
 let isLooped = false;
 let laserAP = 0;
+let brightLaserAP = 0;
+let hasCompleted = false;
+const traveler = {
+  ap: 0,
+  laserPathIndex: 0,
+};
 
 // INPUTS
 let hoveredSF = null;
@@ -129,6 +135,13 @@ function getRandomItem(arr) {
 }
 function popRandomItem(arr) {
   return arr.splice(randomInt(arr.length), 1)[0];
+}
+
+function nti(newIndex) {
+  // only fixes one cycle
+  if (newIndex >= 3) return newIndex - 3;
+  if (newIndex <= -1) return newIndex + 3;
+  return newIndex;
 }
 
 // disable right click menu
