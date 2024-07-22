@@ -36,6 +36,7 @@ let walls = []; // smallFace[]
 // ap = animation progress (set 0 on laser hit)
 let checks = []; // {sf, isHit, ap}[]
 
+let maxReflectorsAllowed = 0;
 let laserParticles = []; // {rPos, vPos, s}[]
 let laserPaths = [];
 let laserSourceSF = null;
@@ -47,6 +48,9 @@ const traveler = {
   ap: 0,
   laserPathIndex: 0,
 };
+
+let yUI = 0;
+let reflectorsCountAP = 0;
 
 // INPUTS
 let hoveredSF = null;
@@ -105,7 +109,8 @@ GameButton.prototype.render = function () {
   rect(this.x, this.y, this.w * this.ap, this.h);
   textSize(this.ts);
   fill(...COLORS.BG);
-  text(this.t, this.x, this.y);
+  /// nKA y
+  text(this.t, this.x, this.y - 5);
 };
 
 // HELPERS

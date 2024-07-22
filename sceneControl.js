@@ -53,7 +53,7 @@ const playBtn = new GameButton(500, 480, 140, 50, 36, "Play", function () {
 });
 
 function titleScene() {
-  updateSphere([0.1, 0.1], [0, 650], 1.2);
+  updateSphere([0.1, 0.1], [100, 650], 1.2);
   playBtn.render();
   noStroke();
   textSize(120);
@@ -61,15 +61,8 @@ function titleScene() {
   text("LASER", 300, 100);
   text("LOOP", 300, 220);
   fill(...COLORS.LASER);
-  textSize(180);
-  text("4", 500, 320);
-
-  textSize(120);
-  fill(...COLORS.BG);
-  text("LASER", 296, 96);
-  text("LOOP", 296, 216);
-  textSize(180);
-  text("4", 496, 316);
+  textSize(220);
+  text("4", 500, 260);
 }
 function titleSceneTouchEnded() {
   if (playBtn.isHovered) playBtn.clicked();

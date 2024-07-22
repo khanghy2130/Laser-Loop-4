@@ -12,12 +12,17 @@ function windowResized() {
   canvas.elt.style.transform = "scale(" + scaleFactor + ")";
 }
 
+let mainFont;
+function preload() {
+  mainFont = loadFont("./AGENCYR.TTF");
+}
+
 function setup() {
   // nKA
   canvas = createCanvas(600, 600, document.getElementById("game-canvas"));
   windowResized();
 
-  textFont("Agency FB");
+  textFont(mainFont);
   angleMode(DEGREES);
   textAlign(CENTER, CENTER);
   rectMode(CENTER);

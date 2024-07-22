@@ -76,7 +76,6 @@ function makeNewLaserPath() {
       if (checks[ci].sf === nextSF && !checks[ci].isHit) {
         checks[ci].isHit = true;
         reachingCheck = true;
-        brightLaserAP = 1;
         break;
       }
     }
@@ -100,14 +99,14 @@ function resetTraveler() {
   }
 }
 
-function renderLaser(LASER_COLOR) {
+function renderLaser() {
   // update laser
   laserAP = min(laserAP + LASER_SPEED, 1);
   if (laserAP === 1) makeNewLaserPath();
 
   // Draw laser
   strokeWeight(10);
-  stroke(LASER_COLOR);
+  stroke(...COLORS.LASER);
   for (let i = 0; i < laserPaths.length; i++) {
     const lp = laserPaths[i];
     if (!lp.sf.isVisible) continue;

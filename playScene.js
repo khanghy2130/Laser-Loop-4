@@ -10,26 +10,15 @@ function playSceneTouchEnded() {
     triangleClicked(hoveredSF);
     return;
   }
+  if (resetBtn.isHovered) resetBtn.clicked();
+  if (helpBtn.isHovered) helpBtn.clicked();
+  if (skipBtn.isHovered) skipBtn.clicked();
 }
 
 function playScene() {
   hoveredSF = null;
-  let LASER_COLOR =
-    brightLaserAP === 0
-      ? color(...COLORS.LASER)
-      : lerpColor(color(...COLORS.LASER), color(255), brightLaserAP);
-  brightLaserAP = max(brightLaserAP - 0.05, 0);
 
-  /////// test
-  noStroke();
-  fill(255);
-  text(
-    generator.diffOps.LASER_LENGTH[0] + "-" + generator.diffOps.LASER_LENGTH[1],
-    50,
-    550
-  );
-  text(generator.visitedSFs.length, 50, 580);
-
+  push();
   translate(width / 2, height / 2);
 
   // Draw reflectors
@@ -47,6 +36,7 @@ function playScene() {
       vertices[2][0],
       vertices[2][1]
     );
+    /// reflector number
     fill(255); /////r
     text(
       i + 1,
@@ -99,7 +89,7 @@ function playScene() {
 
   // Draw laserSource
   if (laserSourceSF.isVisible) {
-    fill(LASER_COLOR);
+    fill(...COLORS.LASER);
     noStroke();
     triangle(
       laserSourceSF.vertices[0][0],
@@ -135,7 +125,7 @@ function playScene() {
     }
   }
 
-  renderLaser(LASER_COLOR);
+  renderLaser(...COLORS.LASER);
 
   // check hover
   for (let sfi = 0; sfi < allSmallFaces.length; sfi++) {
@@ -154,38 +144,6 @@ function playScene() {
       break;
     }
   }
-
-  /// test: draw current pathsAhead
-  // noStroke();
-  // if (generator.isGeneratingLaser) {
-  //   const pathsAhead =
-  //     generator.generatedHistory[generator.generatedHistory.length - 1]
-  //       .pathsAhead;
-  //   for (let i = 0; i < pathsAhead.length; i++) {
-  //     const pa = pathsAhead[i];
-  //     if (!pa.sf.isVisible) continue;
-  //     const vs = pa.sf.vertices;
-  //     if (pa.canPlaceHere) fill(0, 100, 255, 200);
-  //     else fill(255, 100, 0, 100);
-  //     triangle(vs[0][0], vs[0][1], vs[1][0], vs[1][1], vs[2][0], vs[2][1]);
-  //   }
-  // }
-  /// test: draw visited sfs
-  // noStroke();
-  // for (let i = 0; i < generator.visitedSFs.length; i++) {
-  //   const sf = generator.visitedSFs[i];
-  //   if (!sf.isVisible) continue;
-  //   if (floor(frameCount / 10) % generator.visitedSFs.length !== i) continue;
-  //   const vs = sf.vertices;
-  //   fill(255, 255, 255, 100);
-  //   triangle(vs[0][0], vs[0][1], vs[1][0], vs[1][1], vs[2][0], vs[2][1]);
-  // }
-
-  // Draw ////////// flash white fade back to color on trigger
-  noStroke();
-  textSize(32);
-  fill(...COLORS.YELLOW);
-  text("0/8▲", -250, -260);
 
   updateTargetSF();
   // Draw targeting effect
@@ -207,4 +165,31 @@ function playScene() {
     }
     sphereInfo.light = max(sphereInfo.light - 0.05, 0);
   }
+  pop();
+
+  renderUI();
+}
+
+const skipBtn = new GameButton(60, 560, 100, 40, 28, "Skip", function () {
+  ////
+});
+const helpBtn = new GameButton(540, 560, 100, 40, 28, "Help", function () {
+  ////
+});
+const resetBtn = new GameButton(60, 40, 100, 40, 28, "Reset", function () {
+  reflectorsCountAP = 1;
+  reflectors.length = 0;
+  laserPaths.length = 1;
+  resetChecksIsHit();
+});
+function renderUI() {
+  yUI -= yUI * 0.1;
+  translate(0, yUI); /// nKA might need pushpop
+  skipBtn.render();
+  helpBtn.render();
+  resetBtn.render();
+  reflectorsCountAP = max(reflectorsCountAP - 0.1, 0);
+  fill(lerpColor(color(...COLORS.GRID), color(255), reflectorsCountAP));
+  textSize(52);
+  text(maxReflectorsAllowed - reflectors.length, 30, 90);
 }

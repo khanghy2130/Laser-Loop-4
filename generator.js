@@ -424,6 +424,9 @@ const generator = {
     brightLaserAP = 0;
     laserParticles.length = 0;
     hasCompleted = false;
+    yUI = 1000;
+    maxReflectorsAllowed = reflectors.length;
+    reflectors.length = 0;
     this.isDoneGenerating = true;
   },
 };

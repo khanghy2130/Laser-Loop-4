@@ -51,6 +51,7 @@ function triangleClicked(sf) {
     return;
   }
 
+  reflectorsCountAP = 1;
   // clicked reflector? remove reflector
   const reflectorIndex = reflectors.indexOf(sf);
   if (reflectorIndex !== -1) {
@@ -69,15 +70,18 @@ function triangleClicked(sf) {
         }
       }
     }
+
     return;
   }
 
-  // clicked empty? place reflector & cut laser paths at this sf if any
-  reflectors.push(sf);
-  let laserPathIndex = getLaserPathIndexOf(sf);
-  if (laserPathIndex !== -1) {
-    laserPaths.length = laserPathIndex;
-    resetChecksIsHit();
+  // clicked empty? place reflector if still have more
+  if (maxReflectorsAllowed > reflectors.length) {
+    reflectors.push(sf);
+    let laserPathIndex = getLaserPathIndexOf(sf);
+    if (laserPathIndex !== -1) {
+      laserPaths.length = laserPathIndex; // cut laser paths
+      resetChecksIsHit();
+    }
   }
 }
 
@@ -102,6 +106,7 @@ function updateTargetSF() {
   }
   // follow targeted SF vertices
   else {
+    cursor(HAND);
     const sfv = targetingEffect.sf.vertices;
     for (let i = 0; i < sfv.length; i++) {
       const newPos = [sfv[i][0], sfv[i][1]];
@@ -115,7 +120,6 @@ function updateTargetSF() {
       newPos[1] += (dy / distance) * REPEL;
     }
   }
-
   // update renderVertices
   for (let i = 0; i < targetingEffect.renderVertices.length; i++) {
     const rv = targetingEffect.renderVertices[i];
