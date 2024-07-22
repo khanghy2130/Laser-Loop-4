@@ -424,6 +424,7 @@ const generator = {
     brightLaserAP = 0;
     laserParticles.length = 0;
     hasCompleted = false;
+    skipBtn.t = "Skip";
     winAP = 0;
     yUI = 1000;
     solutionReflectors = reflectors.slice(0);

@@ -1,4 +1,5 @@
 function playSceneMouseDragged() {
+  if (modalType !== null) return;
   applyRotation(
     (mouseX - pmouseX) * DRAG_SPEED, // angleY
     (mouseY - pmouseY) * -DRAG_SPEED // angleX
@@ -6,6 +7,18 @@ function playSceneMouseDragged() {
 }
 
 function playSceneTouchEnded() {
+  // modal click?
+  if (modalType !== null) {
+    if (modalType === "SKIP" && modalPageIndex === 0) {
+      if (yesBtn.isHovered) yesBtn.clicked();
+      if (noBtn.isHovered) noBtn.clicked();
+    } else {
+      if (continueBtn.isHovered) continueBtn.clicked();
+    }
+    return;
+  }
+
+  // sf clicked?
   if (hoveredSF) {
     triangleClicked(hoveredSF);
     return;
@@ -16,6 +29,11 @@ function playSceneTouchEnded() {
 }
 
 function playScene() {
+  if (modalType !== null) {
+    renderModal();
+    return;
+  }
+
   hoveredSF = null;
 
   push();
@@ -159,17 +177,19 @@ function playScene() {
   }
 
   // Draw solution numbers
-  fill(255);
-  noStroke();
-  textSize(32);
-  for (let sri = 0; sri < solutionReflectors.length; sri++) {
-    const sf = solutionReflectors[sri];
-    if (!sf.isVisible) continue;
-    text(
-      sri + 1,
-      (sf.vertices[0][0] + sf.vertices[1][0] + sf.vertices[2][0]) / 3,
-      (sf.vertices[0][1] + sf.vertices[1][1] + sf.vertices[2][1]) / 3
-    );
+  if (hasCompleted) {
+    fill(255);
+    noStroke();
+    textSize(32);
+    for (let sri = 0; sri < solutionReflectors.length; sri++) {
+      const sf = solutionReflectors[sri];
+      if (!sf.isVisible) continue;
+      text(
+        sri + 1,
+        (sf.vertices[0][0] + sf.vertices[1][0] + sf.vertices[2][0]) / 3,
+        (sf.vertices[0][1] + sf.vertices[1][1] + sf.vertices[2][1]) / 3
+      );
+    }
   }
   pop();
 
@@ -178,10 +198,16 @@ function playScene() {
 }
 
 const skipBtn = new GameButton(60, 560, 100, 40, 28, "Skip", function () {
-  ////
+  if (!hasCompleted) openModal("SKIP");
+  else {
+    scene = "SELECT";
+    easyBtn.ap = 0;
+    mediumBtn.ap = 0;
+    hardBtn.ap = 0;
+  }
 });
 const helpBtn = new GameButton(540, 560, 100, 40, 28, "Help", function () {
-  ////
+  openModal("HELP");
 });
 const resetBtn = new GameButton(60, 40, 100, 40, 28, "Reset", function () {
   reflectorsCountAP = 1;
@@ -191,7 +217,7 @@ const resetBtn = new GameButton(60, 40, 100, 40, 28, "Reset", function () {
 });
 function renderUI() {
   yUI -= yUI * 0.1;
-  translate(0, yUI); /// nKA might need pushpop
+  translate(0, yUI); // nKA might need pushpop
   skipBtn.render();
   helpBtn.render();
   resetBtn.render();
@@ -258,6 +284,6 @@ function renderWinAnimation() {
     } else {
       fill(...COLORS.BG, (1 / 2 - min(winAP - 3, 1 / 2)) * 2 * 255);
     }
-    text("COMPLETED", 300, 295); // nKA
+    text("COMPLETE", 300, 295); // nKA
   }
 }

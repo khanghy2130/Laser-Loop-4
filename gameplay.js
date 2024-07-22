@@ -138,5 +138,8 @@ function checkWin() {
         break;
       }
     }
+    if (hasCompleted) {
+      skipBtn.t = "Exit";
+    }
   }
 }

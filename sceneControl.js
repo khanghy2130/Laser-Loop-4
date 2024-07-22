@@ -53,7 +53,7 @@ const playBtn = new GameButton(500, 480, 140, 50, 36, "Play", function () {
 });
 
 function titleScene() {
-  updateSphere([0.1, 0.1], [100, 650], 1.2);
+  updateSphere([0.2, 0.2], [90, 650], 1.2);
   playBtn.render();
   noStroke();
   textSize(120);
@@ -82,7 +82,7 @@ const hardBtn = new GameButton(120, 350, 200, 60, 38, "Hard", function () {
 });
 
 function selectScene() {
-  updateSphere([0, -0.08], [300, 900], 1.6);
+  updateSphere([0, -0.1], [300, 900], 1.5);
   easyBtn.render();
   mediumBtn.render();
   hardBtn.render();
