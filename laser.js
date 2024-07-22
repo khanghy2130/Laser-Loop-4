@@ -67,6 +67,7 @@ function makeNewLaserPath() {
     // reaching source?
     if (nextSF === laserSourceSF) {
       isLooped = true;
+      checkWin();
       return;
     }
 

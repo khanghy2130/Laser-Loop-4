@@ -27,7 +27,6 @@ function playScene() {
   for (let i = 0; i < reflectors.length; i++) {
     if (!reflectors[i].isVisible) continue;
     const vertices = reflectors[i].vertices;
-    fill(...COLORS.REFLECTOR); /////r
     triangle(
       vertices[0][0],
       vertices[0][1],
@@ -36,13 +35,6 @@ function playScene() {
       vertices[2][0],
       vertices[2][1]
     );
-    /// reflector number
-    fill(255); /////r
-    text(
-      i + 1,
-      (vertices[0][0] + vertices[1][0] + vertices[2][0]) / 3,
-      (vertices[0][1] + vertices[1][1] + vertices[2][1]) / 3
-    ); /////r
   }
 
   // Draw walls
@@ -165,9 +157,24 @@ function playScene() {
     }
     sphereInfo.light = max(sphereInfo.light - 0.05, 0);
   }
+
+  // Draw solution numbers
+  fill(255);
+  noStroke();
+  textSize(32);
+  for (let sri = 0; sri < solutionReflectors.length; sri++) {
+    const sf = solutionReflectors[sri];
+    if (!sf.isVisible) continue;
+    text(
+      sri + 1,
+      (sf.vertices[0][0] + sf.vertices[1][0] + sf.vertices[2][0]) / 3,
+      (sf.vertices[0][1] + sf.vertices[1][1] + sf.vertices[2][1]) / 3
+    );
+  }
   pop();
 
   renderUI();
+  renderWinAnimation();
 }
 
 const skipBtn = new GameButton(60, 560, 100, 40, 28, "Skip", function () {
@@ -192,4 +199,65 @@ function renderUI() {
   fill(lerpColor(color(...COLORS.GRID), color(255), reflectorsCountAP));
   textSize(52);
   text(maxReflectorsAllowed - reflectors.length, 30, 90);
+}
+
+function renderWinAnimation() {
+  if (!hasCompleted || winAP > 4) return;
+
+  winAP += 0.02;
+  textSize(100);
+
+  // pink rects appear
+  noStroke();
+  if (winAP < 3) {
+    fill(...COLORS.GRID);
+    for (let i = 0; i < 5; i++) {
+      rect(
+        300 + (i - 2) * 100,
+        300,
+        100,
+        160 * constrain(easeOutQuint(min(winAP - i * 0.12, 1)), 0, 1)
+      );
+    }
+  }
+
+  if (winAP < 2) {
+    fill(...COLORS.BG, min(winAP, 1 / 2) * 2 * 255);
+    text("LOOP", 300, 295); // nKA
+  }
+
+  // green rects appear
+  if (winAP < 3) {
+    fill(...COLORS.LASER);
+    for (let i = 0; i < 5; i++) {
+      rect(
+        300 + (i - 2) * 100,
+        300,
+        100,
+        160 * constrain(easeOutQuint(min(winAP - 1.5 - i * 0.12, 1)), 0, 1)
+      );
+    }
+  }
+
+  // green rects disappear
+  if (winAP >= 3) {
+    fill(...COLORS.LASER);
+    for (let i = 0; i < 5; i++) {
+      rect(
+        300 + (i - 2) * 100,
+        300,
+        100,
+        160 * constrain(1 - easeOutQuint(min(winAP - 3 - i * 0.12, 1)), 0, 1)
+      );
+    }
+  }
+
+  if (winAP > 1.5) {
+    if (winAP < 3) {
+      fill(...COLORS.BG, min(winAP - 1.8, 1 / 2) * 2 * 255);
+    } else {
+      fill(...COLORS.BG, (1 / 2 - min(winAP - 3, 1 / 2)) * 2 * 255);
+    }
+    text("COMPLETED", 300, 295); // nKA
+  }
 }

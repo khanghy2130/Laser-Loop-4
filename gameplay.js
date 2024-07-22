@@ -128,3 +128,15 @@ function updateTargetSF() {
     rv[1] += (tv[1] - rv[1]) * ELASTICITY * (0.6 + 0.15 * (i + 1));
   }
 }
+
+function checkWin() {
+  if (!hasCompleted && generator.isDoneGenerating) {
+    hasCompleted = true;
+    for (let i = 0; i < checks.length; i++) {
+      if (!checks[i].isHit) {
+        hasCompleted = false;
+        break;
+      }
+    }
+  }
+}

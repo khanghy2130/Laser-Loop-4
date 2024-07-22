@@ -1,6 +1,7 @@
 function keyPressed() {
   if (keyCode !== 32) return;
-  generator.generate(1);
+  winAP = 0;
+  hasCompleted = true;
 }
 
 // nKA

@@ -42,8 +42,10 @@ let laserPaths = [];
 let laserSourceSF = null;
 let isLooped = false;
 let laserAP = 0;
-let brightLaserAP = 0;
+let solutionReflectors = [];
 let hasCompleted = false;
+let winAP = 0;
+
 const traveler = {
   ap: 0,
   laserPathIndex: 0,
@@ -147,6 +149,10 @@ function nti(newIndex) {
   if (newIndex >= 3) return newIndex - 3;
   if (newIndex <= -1) return newIndex + 3;
   return newIndex;
+}
+
+function easeOutQuint(x) {
+  return 1 - Math.pow(1 - x, 5);
 }
 
 // disable right click menu
