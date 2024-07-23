@@ -217,14 +217,39 @@ const resetBtn = new GameButton(60, 40, 100, 40, 28, "Reset", function () {
 });
 function renderUI() {
   yUI -= yUI * 0.1;
-  translate(0, yUI); // nKA might need pushpop
+  push();
+  translate(0, yUI);
   skipBtn.render();
   helpBtn.render();
   resetBtn.render();
+
+  // reflectors count
   reflectorsCountAP = max(reflectorsCountAP - 0.1, 0);
   fill(lerpColor(color(...COLORS.GRID), color(255), reflectorsCountAP));
   textSize(52);
   text(maxReflectorsAllowed - reflectors.length, 30, 90);
+
+  // timer
+  textSize(36);
+  fill(...COLORS.GRID);
+  if (hasSkipped) {
+    text("Skipped", 540, 40);
+  } else {
+    if (!hasCompleted) {
+      timeElapsed = Date.now() - startTime;
+    }
+    let minute = floor(timeElapsed / 60000);
+    let sec = floor((timeElapsed % 60000) / 1000) + "";
+    if (sec.length === 1) {
+      sec = "0" + sec;
+    }
+    text(`${minute}:${sec}`, 540, 40);
+    if (isBestTime) {
+      textSize(26);
+      text("Best time!", 540, 80);
+    }
+  }
+  pop();
 }
 
 function renderWinAnimation() {
@@ -257,7 +282,7 @@ function renderWinAnimation() {
     fill(...COLORS.LASER);
     for (let i = 0; i < 5; i++) {
       rect(
-        300 + (i - 2) * 100,
+        300 - (i - 2) * 100,
         300,
         100,
         160 * constrain(easeOutQuint(min(winAP - 1.5 - i * 0.12, 1)), 0, 1)
@@ -270,7 +295,7 @@ function renderWinAnimation() {
     fill(...COLORS.LASER);
     for (let i = 0; i < 5; i++) {
       rect(
-        300 + (i - 2) * 100,
+        300 - (i - 2) * 100,
         300,
         100,
         160 * constrain(1 - easeOutQuint(min(winAP - 3 - i * 0.12, 1)), 0, 1)

@@ -36,6 +36,7 @@ function triangleClicked(sf) {
 
   // clicked source?
   if (laserSourceSF === sf) {
+    _playSound(sounds.splat, 5);
     const firstPath = laserPaths[0];
     // going clockwise? go counterclockwise (same adjacent, different dir)
     if (nti(firstPath.e1i + 1) === firstPath.e2i) {
@@ -52,6 +53,7 @@ function triangleClicked(sf) {
   }
 
   reflectorsCountAP = 1;
+  _playSound(sounds.splat, 3.5);
   // clicked reflector? remove reflector
   const reflectorIndex = reflectors.indexOf(sf);
   if (reflectorIndex !== -1) {
@@ -138,8 +140,23 @@ function checkWin() {
         break;
       }
     }
+    // win!
     if (hasCompleted) {
       skipBtn.t = "Exit";
+      // set best time
+      const prevBestTime = STATS[difficultyLevel].bestTime;
+      isBestTime = prevBestTime === null || prevBestTime > timeElapsed;
+      if (isBestTime) {
+        STATS[difficultyLevel].bestTime = timeElapsed;
+        // save new stats nKA
+        localStorage.setItem(difficultyLevel + "bestTime", timeElapsed);
+      }
+      STATS[difficultyLevel].completeCount++; // complete count up
+      // save new stats nKA
+      localStorage.setItem(
+        difficultyLevel + "completeCount",
+        STATS[difficultyLevel].completeCount
+      );
     }
   }
 }

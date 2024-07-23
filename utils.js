@@ -16,6 +16,24 @@ const UNIQUE_PERCENTAGES = [0.62, 0.79];
 const SPHERE_TRANSITION_SPEED = 0.05;
 const BUTTON_TRANSITION_SPEED = 0.3;
 
+const STATS = [
+  // short
+  {
+    bestTime: null,
+    completeCount: 0,
+  },
+  // medium
+  {
+    bestTime: null,
+    completeCount: 0,
+  },
+  // long
+  {
+    bestTime: null,
+    completeCount: 0,
+  },
+];
+
 const COLORS = {
   BG: [54, 0, 37],
   GRID: [250, 118, 186],
@@ -45,6 +63,11 @@ let laserAP = 0;
 let solutionReflectors = [];
 let hasCompleted = false;
 let winAP = 0;
+let startTime;
+let timeElapsed;
+let isBestTime = false;
+let difficultyLevel = 0;
+let hasSkipped = false;
 
 const traveler = {
   ap: 0,
@@ -80,7 +103,10 @@ const GameButton = function (x, y, w, h, ts, t, clicked) {
   this.h = h;
   this.ts = ts;
   this.t = t;
-  this.clicked = clicked;
+  this.clicked = function () {
+    _playSound(sounds.click, 4);
+    clicked();
+  };
   this.isHovered = false;
   this.ap = 0; // hovered is towards 1
 };

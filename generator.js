@@ -30,8 +30,7 @@ const generator = {
     checks.length = 0;
   },
 
-  // difficultyLevel is index of DIFFICULTY_OPTIONS
-  generate: function (difficultyLevel) {
+  generate: function () {
     scene = "GENERATING";
     this.diffOps = this.DIFFICULTY_OPTIONS[difficultyLevel];
     this.resetGame();
@@ -196,11 +195,12 @@ const generator = {
       gHistory.nextOnePopped = true;
     }
 
-    // if long enough & reachedSource then finish laser generation
+    // if long enough & reachedSource & exact reflectors count then finish laser generation
     if (
       gHistory.reachedSource &&
       this.diffOps.LASER_LENGTH[0] <= this.visitedSFs.length &&
-      this.diffOps.LASER_LENGTH[1] >= this.visitedSFs.length
+      this.diffOps.LASER_LENGTH[1] >= this.visitedSFs.length &&
+      reflectors.length === this.diffOps.REFLECTORS_AMOUNT
     ) {
       // regenerate if not within unique perentage
       const uniqueSFs = [];
@@ -425,8 +425,10 @@ const generator = {
     laserParticles.length = 0;
     hasCompleted = false;
     skipBtn.t = "Skip";
+    hasSkipped = false;
     winAP = 0;
     yUI = 1000;
+    isBestTime = false;
     solutionReflectors = reflectors.slice(0);
     maxReflectorsAllowed = reflectors.length;
     reflectors.length = 0;

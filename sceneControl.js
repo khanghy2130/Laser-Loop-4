@@ -68,17 +68,19 @@ function titleSceneTouchEnded() {
   if (playBtn.isHovered) playBtn.clicked();
 }
 
-const easyBtn = new GameButton(120, 150, 200, 60, 38, "Easy", function () {
-  generator.generate(0);
+function startGame(d) {
+  difficultyLevel = d;
+  generator.generate();
   generateCountdown = 100;
+}
+const easyBtn = new GameButton(120, 150, 200, 60, 38, "Short", function () {
+  startGame(0);
 });
 const mediumBtn = new GameButton(120, 250, 200, 60, 38, "Medium", function () {
-  generator.generate(1);
-  generateCountdown = 100;
+  startGame(1);
 });
-const hardBtn = new GameButton(120, 350, 200, 60, 38, "Hard", function () {
-  generator.generate(2);
-  generateCountdown = 100;
+const hardBtn = new GameButton(120, 350, 200, 60, 38, "Long", function () {
+  startGame(2);
 });
 
 function selectScene() {
@@ -87,11 +89,25 @@ function selectScene() {
   mediumBtn.render();
   hardBtn.render();
 
-  // meta info
-  fill(255);
+  // Draw stats
+  fill(...COLORS.GRID);
   textSize(28);
   text("Completed", 330, 80);
   text("Best time", 500, 80);
+  textSize(36);
+
+  for (let i = 0; i < STATS.length; i++) {
+    text(STATS[i].completeCount, 330, 150 + i * 100);
+    const bt = STATS[i].bestTime;
+    let displayTime = "-";
+    if (bt !== null) {
+      let minute = floor(bt / 60000);
+      let sec = floor((bt % 60000) / 1000) + "";
+      if (sec.length === 1) sec = "0" + sec;
+      displayTime = `${minute}:${sec}`;
+    }
+    text(displayTime, 500, 150 + i * 100);
+  }
 }
 function selectSceneTouchEnded() {
   if (easyBtn.isHovered) easyBtn.clicked();
@@ -118,6 +134,7 @@ function generatingScene() {
     // done fake timer & sphere normal size?
     if (1 - sphereInfo.scale < 0.001) {
       scene = "PLAY";
+      startTime = Date.now();
     }
   }
 }

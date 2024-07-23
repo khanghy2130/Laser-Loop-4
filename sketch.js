@@ -14,14 +14,38 @@ function windowResized() {
 }
 
 let mainFont;
+const sounds = {};
 function preload() {
   mainFont = loadFont("./AGENCYR.TTF");
+  sounds.click = loadSound("./sounds/battle-swing.mp3");
+  sounds.splat = loadSound("./sounds/hit-splat.mp3");
+  sounds.bubble = loadSound("./sounds/water-bubble.mp3");
+}
+
+// nKA
+function _playSound(sound, rate) {
+  sound.currentTime = 0;
+  sound.playbackRate = 1 + rate;
+  sound.play();
 }
 
 function setup() {
   // nKA
   canvas = createCanvas(600, 600, document.getElementById("game-canvas"));
   windowResized();
+
+  // nKA
+  STATS[0].bestTime = localStorage.getItem("0bestTime") || null;
+  STATS[0].completeCount = localStorage.getItem("0completeCount") || 0;
+  STATS[1].bestTime = localStorage.getItem("1bestTime") || null;
+  STATS[1].completeCount = localStorage.getItem("1completeCount") || 0;
+  STATS[2].bestTime = localStorage.getItem("2bestTime") || null;
+  STATS[2].completeCount = localStorage.getItem("2completeCount") || 0;
+
+  // nKA
+  sounds.click.preservesPitch = false;
+  sounds.splat.preservesPitch = false;
+  sounds.bubble.preservesPitch = false;
 
   textFont(mainFont);
   angleMode(DEGREES);

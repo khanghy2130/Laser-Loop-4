@@ -16,23 +16,21 @@ const continueBtn = new GameButton(
       nextModalPage();
     } else {
       modalType = null;
-      this.ap = 0;
       this.isHovered = false;
     }
   }
 );
 
 const yesBtn = new GameButton(200, 360, 100, 50, 32, "Yes", function () {
-  this.ap = 0;
   this.isHovered = false;
   hasCompleted = true;
   skipBtn.t = "Exit";
+  hasSkipped = true;
   winAP = 100; // skip animation
   nextModalPage();
 });
 
 const noBtn = new GameButton(400, 360, 100, 50, 32, "No", function () {
-  this.ap = 0;
   this.isHovered = false;
   modalType = null;
 });
@@ -47,7 +45,7 @@ function renderModal() {
   let rectInfo = [300, 300, 400, 300];
   noStroke();
   textSize(32);
-  fill(0, 0, 0, 200); // rect color
+  fill(0, 0, 0, 220); // rect color
   if (modalType === "HELP") {
     rect(...rectInfo);
     fill(255);
@@ -98,13 +96,16 @@ function renderModal() {
   }
   // draw cover
   modalAP = max(modalAP - 0.05, 0);
-  fill(255, 255, 255, modalAP * 160);
+  fill(255, 255, 255, modalAP * 140);
   rect(...rectInfo);
 }
 
 function openModal(mType) {
+  bgImage = get(0, 0, width, height);
   modalType = mType;
   modalAP = 1;
   modalPageIndex = 0;
-  bgImage = get(0, 0, width, height);
+  yesBtn.ap = 0;
+  noBtn.ap = 0;
+  continueBtn.ap = 0;
 }

@@ -77,6 +77,7 @@ function makeNewLaserPath() {
       if (checks[ci].sf === nextSF && !checks[ci].isHit) {
         checks[ci].isHit = true;
         reachingCheck = true;
+        if (generator.isDoneGenerating) _playSound(sounds.bubble, 8);
         break;
       }
     }
