@@ -1,8 +1,8 @@
-function keyPressed() {
-  if (keyCode !== 32) return;
-  winAP = 0;
-  hasCompleted = true;
-}
+// function keyPressed() {
+//   if (keyCode !== 32) return;
+//   winAP = 0;
+//   hasCompleted = true;
+// }
 
 // nKA
 let _mouseX, _mouseY;

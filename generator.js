@@ -421,7 +421,6 @@ const generator = {
     initiateStarterLaserPath();
     resetChecksIsHit();
     laserAP = 0;
-    brightLaserAP = 0;
     laserParticles.length = 0;
     hasCompleted = false;
     skipBtn.t = "Skip";
